@@ -23,7 +23,5 @@ while(<>)
    }
 }
 
-#printf "left=%f right=%f top=%f bottom=%f\n",
-#   $minx, $maxx, $maxy, $miny;
 $buffer = 0.1;
 printf "%f,%f,%f,%f\n", $miny - $buffer, $minx - $buffer, $maxy + $buffer, $maxx + $buffer;

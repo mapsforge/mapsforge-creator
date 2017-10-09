@@ -23,6 +23,4 @@ while(<>)
    }
 }
 
-#printf "left=%f right=%f top=%f bottom=%f\n",
-#   $minx, $maxx, $maxy, $miny;
 printf "%f,%f\n", ($miny + $maxy) / 2, ($minx + $maxx) / 2;
