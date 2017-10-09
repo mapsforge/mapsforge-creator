@@ -22,6 +22,7 @@ LAND_PATH="$HOME/mapsforge/land-polygons-split-4326"
 
 DATA_PATH="$HOME/mapsforge/data"
 MAPS_PATH="$HOME/mapsforge/maps"
+[ $3 ] && MAPS_PATH="$MAPS_PATH/v4" || MAPS_PATH="$MAPS_PATH/v3"
 POIS_PATH="$HOME/mapsforge/pois"
 
 
