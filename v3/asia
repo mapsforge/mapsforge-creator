@@ -1,0 +1,38 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+
+../map-creator asia/afghanistan ram
+../map-creator asia/azerbaijan ram
+../map-creator asia/bangladesh ram
+../map-creator asia/cambodia ram
+../map-creator asia/china ram
+../map-creator asia/gcc-states ram
+../map-creator asia/india ram
+../map-creator asia/indonesia ram
+../map-creator asia/iran ram
+../map-creator asia/iraq ram
+../map-creator asia/israel-and-palestine ram
+../map-creator asia/japan ram
+../map-creator asia/jordan ram
+../map-creator asia/kazakhstan ram
+../map-creator asia/kyrgyzstan ram
+../map-creator asia/lebanon ram
+../map-creator asia/malaysia-singapore-brunei ram
+../map-creator asia/maldives ram
+../map-creator asia/mongolia ram
+../map-creator asia/myanmar ram
+../map-creator asia/nepal ram
+../map-creator asia/north-korea ram
+../map-creator asia/pakistan ram
+../map-creator asia/philippines ram
+../map-creator asia/south-korea ram
+../map-creator asia/sri-lanka ram
+../map-creator asia/syria ram
+../map-creator asia/taiwan ram
+../map-creator asia/tajikistan ram
+../map-creator asia/thailand ram
+../map-creator asia/turkmenistan ram
+../map-creator asia/uzbekistan ram
+../map-creator asia/vietnam ram
+../map-creator asia/yemen ram

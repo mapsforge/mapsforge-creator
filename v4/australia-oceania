@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+
+../map-creator australia-oceania/australia ram en,de,fr,es
+../map-creator australia-oceania/fiji ram en,de,fr,es
+../map-creator australia-oceania/new-caledonia ram en,de,fr,es
+../map-creator australia-oceania/new-zealand ram en,de,fr,es

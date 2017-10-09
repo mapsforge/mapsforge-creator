@@ -1,0 +1,14 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+
+../map-creator south-america/argentina ram en,de,fr,es
+../map-creator south-america/bolivia ram en,de,fr,es
+../map-creator south-america/brazil ram en,de,fr,es
+../map-creator south-america/chile ram en,de,fr,es
+../map-creator south-america/colombia ram en,de,fr,es
+../map-creator south-america/ecuador ram en,de,fr,es
+../map-creator south-america/paraguay ram en,de,fr,es
+../map-creator south-america/peru ram en,de,fr,es
+../map-creator south-america/suriname ram en,de,fr,es
+../map-creator south-america/uruguay ram en,de,fr,es

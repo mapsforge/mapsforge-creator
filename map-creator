@@ -1,0 +1,105 @@
+#!/bin/bash
+# Copyright (C) 2017 devemux86
+#
+# Mapsforge map creation (with coastlines)
+
+if [ $# -lt 2 ]; then
+  echo "Usage: $0 continent/country[/region] ram|hd [lang,...]"
+  echo "Example: $0 europe/germany/berlin ram en,de,fr,es"
+  exit
+fi
+
+cd "$(dirname "$0")"
+
+
+# Configuration
+
+# http://wiki.openstreetmap.org/wiki/Osmosis
+OSMOSIS_HOME="$HOME/programs/osmosis"
+
+# http://data.openstreetmapdata.com/land-polygons-split-4326.zip
+LAND_PATH="$HOME/mapsforge/land-polygons-split-4326"
+
+DATA_PATH="$HOME/mapsforge/data"
+MAPS_PATH="$HOME/mapsforge/maps"
+POIS_PATH="$HOME/mapsforge/pois"
+
+
+# Paths
+
+NAME="$(basename "$1")"
+
+DATA_PATH="$DATA_PATH/$1"
+MAPS_PATH="$(dirname "$MAPS_PATH/$1")"
+POIS_PATH="$(dirname "$POIS_PATH/$1")"
+
+mkdir -p "$DATA_PATH"
+mkdir -p "$MAPS_PATH"
+mkdir -p "$POIS_PATH"
+
+
+# Download
+
+wget -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf
+wget -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5
+(cd "$DATA_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit
+wget -N -P "$DATA_PATH" http://download.geofabrik.de/$1.poly
+
+
+# Bounds
+
+BBOX=$(perl poly2bb.pl "$DATA_PATH/$NAME.poly")
+BBOX=(${BBOX//,/ })
+BOTTOM=${BBOX[0]}
+LEFT=${BBOX[1]}
+TOP=${BBOX[2]}
+RIGHT=${BBOX[3]}
+
+
+# Start position
+
+CENTER=$(perl poly2center.pl "$DATA_PATH/$NAME.poly")
+CENTER=(${CENTER//,/ })
+LAT=${CENTER[0]}
+LON=${CENTER[1]}
+
+
+# Land
+
+ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP "$DATA_PATH/land.shp" "$LAND_PATH/land_polygons.shp"
+python shape2osm.py -l "$DATA_PATH/land" "$DATA_PATH/land.shp"
+
+
+# Sea
+
+cp sea.osm "$DATA_PATH"
+sed -i "s/\$BOTTOM/$BOTTOM/g" "$DATA_PATH/sea.osm"
+sed -i "s/\$LEFT/$LEFT/g" "$DATA_PATH/sea.osm"
+sed -i "s/\$TOP/$TOP/g" "$DATA_PATH/sea.osm"
+sed -i "s/\$RIGHT/$RIGHT/g" "$DATA_PATH/sea.osm"
+
+
+# Merge
+
+"$OSMOSIS_HOME/bin/osmosis" --rb file="$DATA_PATH/$NAME-latest.osm.pbf" \
+                            --rx file="$DATA_PATH/sea.osm" --s --m \
+                            --rx file="$DATA_PATH/land.osm" --s --m \
+                            --wb file="$DATA_PATH/merge.pbf" omitmetadata=true
+
+
+# Map
+
+CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/merge.pbf \
+                               --mw file=$MAPS_PATH/$NAME.map \
+                                    type=$2 \
+                                    bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
+                                    map-start-position=$LAT,$LON \
+                                    map-start-zoom=8"
+[ $3 ] && CMD="$CMD preferred-languages=$3"
+$CMD
+
+
+# POI
+
+"$OSMOSIS_HOME/bin/osmosis" --rb file="$DATA_PATH/$NAME-latest.osm.pbf" \
+                            --pw file="$POIS_PATH/$NAME.poi"

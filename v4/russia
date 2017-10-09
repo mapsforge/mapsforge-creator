@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+
+../map-creator russia/central-fed-district ram en,de,fr,es
+../map-creator russia/crimean-fed-district ram en,de,fr,es
+../map-creator russia/far-eastern-fed-district ram en,de,fr,es
+../map-creator russia/north-caucasus-fed-district ram en,de,fr,es
+../map-creator russia/northwestern-fed-district ram en,de,fr,es
+../map-creator russia/siberian-fed-district ram en,de,fr,es
+../map-creator russia/south-fed-district ram en,de,fr,es
+../map-creator russia/ural-fed-district ram en,de,fr,es
+../map-creator russia/volga-fed-district ram en,de,fr,es
