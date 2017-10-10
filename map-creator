@@ -3,6 +3,8 @@
 # Mapsforge map creation (with coastlines)
 # using OpenStreetMap data from Geofabrik
 #
+# https://github.com/mapsforge/mapsforge/blob/master/docs/MapCreation.md
+#
 # Written by devemux86
 
 # Configuration
