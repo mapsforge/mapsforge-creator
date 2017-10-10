@@ -1,5 +1,5 @@
 # mapsforge-creator
-Automatic generation for Mapsforge maps and pois.
+Automatic generation for Mapsforge maps and pois (based on our [guide](https://github.com/mapsforge/mapsforge/blob/master/docs/MapCreation.md)).
 
 - This script downloads OpenStreetMap data from [Geofabrik](http://download.geofabrik.de/).
 - You will need a working [Osmosis](http://wiki.openstreetmap.org/wiki/Osmosis) installation.
