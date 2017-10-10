@@ -1,20 +1,38 @@
 #!/bin/bash
-# Copyright (C) 2017 devemux86
-#
+
 # Mapsforge map creation (with coastlines)
 # with OpenStreetMap data from Geofabrik
+#
+# Written by devemux86
 
 # Configuration
 
 # http://wiki.openstreetmap.org/wiki/Osmosis
-OSMOSIS_HOME="$HOME/programs/osmosis"
+OSMOSIS_HOME="$OSMOSIS_HOME_CONFIG"
+if [ "$OSMOSIS_HOME_CONFIG" = "" ]; then
+  OSMOSIS_HOME="$HOME/programs/osmosis"
+fi
 
 # http://data.openstreetmapdata.com/land-polygons-split-4326.zip
-LAND_PATH="$HOME/mapsforge/land-polygons-split-4326"
+LAND_PATH="$LAND_PATH_CONFIG"
+if [ "$LAND_PATH_CONFIG" = "" ]; then
+  LAND_PATH="$HOME/mapsforge/land-polygons-split-4326"
+fi
 
-DATA_PATH="$HOME/mapsforge/data"
-MAPS_PATH="$HOME/mapsforge/maps"
-POIS_PATH="$HOME/mapsforge/pois"
+DATA_PATH="$DATA_PATH_CONFIG"
+if [ "$DATA_PATH_CONFIG" = "" ]; then
+  DATA_PATH="$HOME/mapsforge/data"
+fi
+
+MAPS_PATH="$MAPS_PATH_CONFIG"
+if [ "$MAPS_PATH_CONFIG" = "" ]; then
+  MAPS_PATH="$HOME/mapsforge/maps"
+fi
+
+POIS_PATH="$POIS_PATH_CONFIG"
+if [ "$POIS_PATH_CONFIG" = "" ]; then
+  POIS_PATH="$HOME/mapsforge/pois"
+fi
 
 # =========== DO NOT CHANGE AFTER THIS LINE. ===========================
 # Below here is regular code, part of the file. This is not designed to
@@ -85,17 +103,28 @@ sed -i "s/\$RIGHT/$RIGHT/g" "$DATA_PATH/sea.osm"
                             --wb file="$DATA_PATH/merge.pbf" omitmetadata=true
 
 # Map
-
-CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/merge.pbf \
-                               --mw file=$MAPS_PATH/$NAME.map \
-                                    type=$2 \
-                                    bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
-                                    map-start-position=$LAT,$LON \
-                                    map-start-zoom=8"
-[ $3 ] && CMD="$CMD preferred-languages=$3"
-$CMD
+if [ "$SKIP_MAP_CREATION" != "true" ]; then
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/merge.pbf \
+                                 --mw file=$MAPS_PATH/$NAME.map \
+                                      type=$2 \
+                                      bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
+                                      map-start-position=$LAT,$LON \
+                                      map-start-zoom=8"
+  [ $3 ] && CMD="$CMD preferred-languages=$3"
+  if [ "$MAP_TAG_CONF_FILE" != "" ]; then
+    CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
+  fi
+  echo "Calling $CMD"
+  $CMD
+fi
 
 # POI
-
-"$OSMOSIS_HOME/bin/osmosis" --rb file="$DATA_PATH/$NAME-latest.osm.pbf" \
-                            --pw file="$POIS_PATH/$NAME.poi"
+if [ "$SKIP_POI_CREATION" != "true" ]; then
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/$NAME-latest.osm.pbf \
+                                 --pw file=$POIS_PATH/$NAME.poi"
+  if [ "$POI_TAG_CONF_FILE" != "" ]; then
+    CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
+  fi 
+  echo "Calling $CMD"
+  $CMD 
+fi 
