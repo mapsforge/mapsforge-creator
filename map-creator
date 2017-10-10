@@ -110,18 +110,22 @@ CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/merge.pbf \
                                     map-start-position=$LAT,$LON \
                                     map-start-zoom=8"
 [ $3 ] && CMD="$CMD preferred-languages=$3"
-if [ "$TAG_CONF_FILE" != "" ]; then
- CMD="$CMD tag-conf-file=$TAG_CONF_FILE"
+if [ "$MAP_TAG_CONF_FILE" != "" ]; then
+ CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
 fi
 echo "Calling $CMD"
 $CMD
 
+if [ "$SKIP_POI_CREATION" = "true" ]; then
+ exit
+fi 
+
 # POI
 
-CMD="$OSMOSIS_HOME/bin/osmosis" --rb file="$DATA_PATH/$NAME-latest.osm.pbf" \
-                            --pw file="$POIS_PATH/$NAME.poi"
-if [ "$TAG_CONF_FILE" != "" ]; then
- CMD="$CMD tag-conf-file=$TAG_CONF_FILE"
+CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/$NAME-latest.osm.pbf \
+                            --pw file=$POIS_PATH/$NAME.poi"
+if [ "$POI_TAG_CONF_FILE" != "" ]; then
+ CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
 fi 
 echo "Calling $CMD"
 $CMD
