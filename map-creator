@@ -113,6 +113,7 @@ CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/merge.pbf \
 if [ "$TAG_CONF_FILE" != "" ]; then
  CMD="$CMD tag-conf-file=$TAG_CONF_FILE"
 fi
+echo "Calling $CMD"
 $CMD
 
 # POI
@@ -122,4 +123,5 @@ CMD="$OSMOSIS_HOME/bin/osmosis" --rb file="$DATA_PATH/$NAME-latest.osm.pbf" \
 if [ "$TAG_CONF_FILE" != "" ]; then
  CMD="$CMD tag-conf-file=$TAG_CONF_FILE"
 fi 
+echo "Calling $CMD"
 $CMD
