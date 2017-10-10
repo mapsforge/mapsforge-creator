@@ -102,30 +102,28 @@ sed -i "s/\$RIGHT/$RIGHT/g" "$DATA_PATH/sea.osm"
                             --wb file="$DATA_PATH/merge.pbf" omitmetadata=true
 
 # Map
-
-CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/merge.pbf \
+if [ "$SKIP_MAP_CREATION" != "true" ]; then
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/merge.pbf \
                                --mw file=$MAPS_PATH/$NAME.map \
                                     type=$2 \
                                     bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
                                     map-start-position=$LAT,$LON \
                                     map-start-zoom=8"
-[ $3 ] && CMD="$CMD preferred-languages=$3"
-if [ "$MAP_TAG_CONF_FILE" != "" ]; then
- CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
+  [ $3 ] && CMD="$CMD preferred-languages=$3"
+  if [ "$MAP_TAG_CONF_FILE" != "" ]; then
+   CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
+  fi
+  echo "Calling $CMD"
+  $CMD
 fi
-echo "Calling $CMD"
-$CMD
-
-if [ "$SKIP_POI_CREATION" = "true" ]; then
- exit
-fi 
 
 # POI
-
-CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/$NAME-latest.osm.pbf \
+if [ "$SKIP_POI_CREATION" != "true" ]; then
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/$NAME-latest.osm.pbf \
                             --pw file=$POIS_PATH/$NAME.poi"
-if [ "$POI_TAG_CONF_FILE" != "" ]; then
- CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
+  if [ "$POI_TAG_CONF_FILE" != "" ]; then
+    CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
+  fi 
+  echo "Calling $CMD"
+  $CMD 
 fi 
-echo "Calling $CMD"
-$CMD
