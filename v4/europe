@@ -3,7 +3,7 @@
 cd "$(dirname "$0")"
 
 ../map-creator europe/albania ram en,de,fr,es
-../map-creator europe/alps ram en,de,fr,es
+../map-creator europe/alps hd en,de,fr,es
 ../map-creator europe/andorra ram en,de,fr,es
 ../map-creator europe/austria ram en,de,fr,es
 ../map-creator europe/azores ram en,de,fr,es
@@ -18,9 +18,9 @@ cd "$(dirname "$0")"
 ../map-creator europe/estonia ram en,de,fr,es
 ../map-creator europe/faroe-islands ram en,de,fr,es
 ../map-creator europe/finland ram en,de,fr,es
-../map-creator europe/france ram en,de,fr,es
+../map-creator europe/france hd en,de,fr,es
 ../map-creator europe/georgia ram en,de,fr,es
-../map-creator europe/germany ram en,de,fr,es
+../map-creator europe/germany hd en,de,fr,es
 ../map-creator europe/great-britain ram en,de,fr,es
 ../map-creator europe/greece ram en,de,fr,es
 ../map-creator europe/hungary ram en,de,fr,es
