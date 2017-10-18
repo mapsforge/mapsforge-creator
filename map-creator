@@ -10,23 +10,17 @@
 # Configuration
 
 # http://wiki.openstreetmap.org/wiki/Osmosis
-OSMOSIS_HOME="$OSMOSIS_HOME_CONFIG"
 [ $OSMOSIS_HOME ] || OSMOSIS_HOME="$HOME/programs/osmosis"
 
 # http://data.openstreetmapdata.com/land-polygons-split-4326.zip
-LAND_PATH="$LAND_PATH_CONFIG"
 [ $LAND_PATH ] || LAND_PATH="$HOME/mapsforge/land-polygons-split-4326"
 
-DATA_PATH="$DATA_PATH_CONFIG"
 [ $DATA_PATH ] || DATA_PATH="$HOME/mapsforge/data"
 
-MAPS_PATH="$MAPS_PATH_CONFIG"
 [ $MAPS_PATH ] || MAPS_PATH="$HOME/mapsforge/maps"
 
-POIS_PATH="$POIS_PATH_CONFIG"
 [ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
 
-TAG_VALUES="$TAG_VALUES_CONFIG"
 [ $TAG_VALUES ] || TAG_VALUES="false"
 
 # =========== DO NOT CHANGE AFTER THIS LINE. ===========================
