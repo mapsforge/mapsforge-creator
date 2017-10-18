@@ -26,6 +26,9 @@ MAPS_PATH="$MAPS_PATH_CONFIG"
 POIS_PATH="$POIS_PATH_CONFIG"
 [ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
 
+TAG_VALUES="$TAG_VALUES_CONFIG"
+[ $TAG_VALUES ] || TAG_VALUES="false"
+
 # =========== DO NOT CHANGE AFTER THIS LINE. ===========================
 # Below here is regular code, part of the file. This is not designed to
 # be modified by users.
@@ -44,7 +47,11 @@ NAME="$(basename "$1")"
 DATA_PATH="$DATA_PATH/$1"
 mkdir -p "$DATA_PATH"
 
-[ $3 ] && MAPS_PATH="$MAPS_PATH/v4" || MAPS_PATH="$MAPS_PATH/v3"
+if [ "$TAG_VALUES" = "true" ]; then
+  MAPS_PATH="$MAPS_PATH/v5"
+else
+  [ $3 ] && MAPS_PATH="$MAPS_PATH/v4" || MAPS_PATH="$MAPS_PATH/v3"
+fi
 MAPS_PATH="$(dirname "$MAPS_PATH/$1")"
 mkdir -p "$MAPS_PATH"
 
@@ -102,7 +109,8 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
                                       type=$2 \
                                       bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
                                       map-start-position=$LAT,$LON \
-                                      map-start-zoom=8"
+                                      map-start-zoom=8 \
+                                      tag-values=$TAG_VALUES"
   [ $3 ] && CMD="$CMD preferred-languages=$3"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
   echo $CMD
