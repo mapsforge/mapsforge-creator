@@ -27,7 +27,7 @@ cd "$(dirname "$0")"
 ../map-creator europe/iceland ram
 ../map-creator europe/ireland-and-northern-ireland ram
 ../map-creator europe/isle-of-man ram
-../map-creator europe/italy ram
+../map-creator europe/italy hd
 ../map-creator europe/kosovo ram
 ../map-creator europe/latvia ram
 ../map-creator europe/liechtenstein ram
@@ -38,7 +38,7 @@ cd "$(dirname "$0")"
 ../map-creator europe/moldova ram
 ../map-creator europe/monaco ram
 ../map-creator europe/montenegro ram
-../map-creator europe/netherlands ram
+../map-creator europe/netherlands hd
 ../map-creator europe/norway ram
 ../map-creator europe/poland ram
 ../map-creator europe/portugal ram
