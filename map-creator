@@ -56,7 +56,7 @@ mkdir -p "$POIS_PATH"
 
 wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf
 wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5
-(cd "$DATA_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit
+(cd "$DATA_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
 wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1.poly
 
 # Bounds
@@ -108,7 +108,9 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
   [ $3 ] && CMD="$CMD preferred-languages=$3"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
   echo $CMD
-  $CMD
+  if ! $CMD ; then
+    exit 1
+  fi
 fi
 
 # POI
@@ -118,5 +120,7 @@ if [ "$SKIP_POI_CREATION" != "true" ]; then
                                  --pw file=$POIS_PATH/$NAME.poi"
   [ $POI_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
   echo $CMD
-  $CMD 
+  if ! $CMD ; then
+    exit 1
+  fi
 fi 
