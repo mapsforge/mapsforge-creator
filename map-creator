@@ -108,7 +108,7 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
   [ $3 ] && CMD="$CMD preferred-languages=$3"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
   echo $CMD
-  if ! CMD ; then
+  if ! $CMD ; then
     exit 1
   fi
 fi
@@ -120,7 +120,7 @@ if [ "$SKIP_POI_CREATION" != "true" ]; then
                                  --pw file=$POIS_PATH/$NAME.poi"
   [ $POI_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
   echo $CMD
-  if ! CMD ; then
+  if ! $CMD ; then
     exit 1
   fi
 fi 
