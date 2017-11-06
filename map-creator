@@ -52,6 +52,15 @@ mkdir -p "$MAPS_PATH"
 POIS_PATH="$(dirname "$POIS_PATH/$1")"
 mkdir -p "$POIS_PATH"
 
+# Check
+
+if [ -f "$MAPS_PATH/$NAME.map" ]; then
+  if [ $(find "$MAPS_PATH/$NAME.map" -mtime -30) ]; then
+    echo "File $MAPS_PATH/$NAME.map exists and is newer than 30 days."
+    exit
+  fi
+fi
+
 # Download
 
 wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf
