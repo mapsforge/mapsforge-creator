@@ -23,6 +23,8 @@
 
 [ $TAG_VALUES ] || TAG_VALUES="false"
 
+[ $DAYS ] || DAYS="30"
+
 # =========== DO NOT CHANGE AFTER THIS LINE. ===========================
 # Below here is regular code, part of the file. This is not designed to
 # be modified by users.
@@ -54,10 +56,12 @@ mkdir -p "$POIS_PATH"
 
 # Check
 
-if [ -f "$MAPS_PATH/$NAME.map" ]; then
-  if [ $(find "$MAPS_PATH/$NAME.map" -mtime -30) ]; then
-    echo "File $MAPS_PATH/$NAME.map exists and is newer than 30 days."
-    exit
+if [ "$SKIP_CHECK" != "true" ]; then
+  if [ -f "$MAPS_PATH/$NAME.map" ]; then
+    if [ $(find "$MAPS_PATH/$NAME.map" -mtime -$DAYS) ]; then
+      echo "File $MAPS_PATH/$NAME.map exists and is newer than $DAYS days."
+      exit
+    fi
   fi
 fi
 
