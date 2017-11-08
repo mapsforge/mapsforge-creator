@@ -23,6 +23,8 @@
 
 [ $TAG_VALUES ] || TAG_VALUES="false"
 
+[ $THREADS ] || THREADS="1"
+
 [ $DAYS ] || DAYS="30"
 
 # =========== DO NOT CHANGE AFTER THIS LINE. ===========================
@@ -117,7 +119,8 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
                                       bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
                                       map-start-position=$LAT,$LON \
                                       map-start-zoom=8 \
-                                      tag-values=$TAG_VALUES"
+                                      tag-values=$TAG_VALUES \
+                                      threads=$THREADS"
   [ $3 ] && CMD="$CMD preferred-languages=$3"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
   echo $CMD
