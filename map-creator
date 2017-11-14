@@ -69,10 +69,10 @@ fi
 
 # Download
 
-wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf
-wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5
+wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf || exit 1
+wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
 (cd "$DATA_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
-wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1.poly
+wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1.poly || exit 1
 
 # Bounds
 
