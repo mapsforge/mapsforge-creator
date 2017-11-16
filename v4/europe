@@ -40,7 +40,7 @@ cd "$(dirname "$0")"
 ../map-creator europe/montenegro ram en,de,fr,es
 ../map-creator europe/netherlands hd en,de,fr,es
 ../map-creator europe/norway ram en,de,fr,es
-../map-creator europe/poland ram en,de,fr,es
+../map-creator europe/poland hd en,de,fr,es
 ../map-creator europe/portugal ram en,de,fr,es
 ../map-creator europe/romania ram en,de,fr,es
 ../map-creator europe/serbia ram en,de,fr,es

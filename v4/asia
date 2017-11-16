@@ -13,7 +13,7 @@ cd "$(dirname "$0")"
 ../map-creator asia/iran ram en,de,fr,es
 ../map-creator asia/iraq ram en,de,fr,es
 ../map-creator asia/israel-and-palestine ram en,de,fr,es
-../map-creator asia/japan ram en,de,fr,es
+../map-creator asia/japan hd en,de,fr,es
 ../map-creator asia/jordan ram en,de,fr,es
 ../map-creator asia/kazakhstan ram en,de,fr,es
 ../map-creator asia/kyrgyzstan ram en,de,fr,es
