@@ -69,6 +69,7 @@ fi
 
 # Download
 
+echo "Downloading $1 ..."
 wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf || exit 1
 wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
 (cd "$DATA_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
@@ -105,10 +106,14 @@ sed -i "s/\$RIGHT/$RIGHT/g" "$DATA_PATH/sea.osm"
 
 # Merge
 
-"$OSMOSIS_HOME/bin/osmosis" --rb file="$DATA_PATH/$NAME-latest.osm.pbf" \
-                            --rx file="$DATA_PATH/sea.osm" --s --m \
-                            --rx file="$DATA_PATH/land.osm" --s --m \
-                            --wb file="$DATA_PATH/merge.pbf" omitmetadata=true
+CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/$NAME-latest.osm.pbf \
+                               --rx file=$DATA_PATH/sea.osm --s --m"
+for f in $DATA_PATH/land*.osm; do
+  CMD="$CMD --rx file=$f --s --m"
+done
+CMD="$CMD --wb file=$DATA_PATH/merge.pbf omitmetadata=true"
+echo $CMD
+$CMD
 
 # Map
 
