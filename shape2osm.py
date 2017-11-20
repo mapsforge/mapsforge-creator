@@ -18,6 +18,8 @@ to accomodate your own data.
 
 Modified to support a maximum waylength and multiple outer ways in a
 multipolygon relationship
+
+adapted by devemux86
 """
 
 __author__ = "Christopher Schmidt <crschmidt@crschmidt.net>"
