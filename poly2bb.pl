@@ -24,4 +24,12 @@ while(<>)
 }
 
 $buffer = 0.1;
-printf "%f,%f,%f,%f\n", $miny - $buffer, $minx - $buffer, $maxy + $buffer, $maxx + $buffer;
+$miny = $miny - $buffer;
+$miny = $miny < -90 ? -90 : $miny;
+$minx = $minx - $buffer;
+$minx = $minx < -180 ? -180 : $minx;
+$maxy = $maxy + $buffer;
+$maxy = $maxy > 90 ? 90 : $maxy;
+$maxx = $maxx + $buffer;
+$maxx = $maxx > 180 ? 180 : $maxx;
+printf "%f,%f,%f,%f\n", $miny, $minx, $maxy, $maxx;
