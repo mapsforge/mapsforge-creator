@@ -12,9 +12,6 @@
 # http://wiki.openstreetmap.org/wiki/Osmosis
 [ $OSMOSIS_HOME ] || OSMOSIS_HOME="$HOME/programs/osmosis"
 
-# http://data.openstreetmapdata.com/land-polygons-split-4326.zip
-[ $LAND_PATH ] || LAND_PATH="$HOME/mapsforge/land-polygons-split-4326"
-
 [ $DATA_PATH ] || DATA_PATH="$HOME/mapsforge/data"
 
 [ $MAPS_PATH ] || MAPS_PATH="$HOME/mapsforge/maps"
@@ -42,8 +39,8 @@ cd "$(dirname "$0")"
 
 NAME="$(basename "$1")"
 
-DATA_PATH="$DATA_PATH/$1"
-mkdir -p "$DATA_PATH"
+WORK_PATH="$DATA_PATH/$1"
+mkdir -p "$WORK_PATH"
 
 if [ "$TAG_VALUES" = "true" ]; then
   MAPS_PATH="$MAPS_PATH/v5"
@@ -58,30 +55,38 @@ mkdir -p "$POIS_PATH"
 
 # Check
 
-if [ "$SKIP_CHECK" != "true" ]; then
-  if [ -f "$MAPS_PATH/$NAME.map" ]; then
-    if [ $(find "$MAPS_PATH/$NAME.map" -mtime -$DAYS) ]; then
-      echo "File $MAPS_PATH/$NAME.map exists and is newer than $DAYS days."
-      exit
-    fi
+if [ -f "$MAPS_PATH/$NAME.map" ]; then
+  if [ $(find "$MAPS_PATH/$NAME.map" -mtime -$DAYS) ]; then
+    echo "$MAPS_PATH/$NAME.map exists and is newer than $DAYS days."
+    exit
   fi
 fi
 
-# Download
+# Download land
 
-if [ -f "$DATA_PATH/$NAME-latest.osm.pbf" ] && [ $(find "$DATA_PATH/$NAME-latest.osm.pbf" -mtime -$DAYS) ]; then
-  echo "File $DATA_PATH/$NAME-latest.osm.pbf exists and is newer than $DAYS days."
+if [ -f "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" ] && [ $(find "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" -mtime -$DAYS) ]; then
+  echo "Land polygons exist and are newer than $DAYS days."
+else
+  echo "Downloading land polygons ..."
+  wget -nv -N -P "$DATA_PATH" http://data.openstreetmapdata.com/land-polygons-split-4326.zip || exit 1
+  unzip -oq "$DATA_PATH/land-polygons-split-4326.zip" -d "$DATA_PATH"
+fi
+
+# Download data
+
+if [ -f "$WORK_PATH/$NAME-latest.osm.pbf" ] && [ $(find "$WORK_PATH/$NAME-latest.osm.pbf" -mtime -$DAYS) ]; then
+  echo "$WORK_PATH/$NAME-latest.osm.pbf exists and is newer than $DAYS days."
 else
   echo "Downloading $1 ..."
-  wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf || exit 1
-  wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
-  (cd "$DATA_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
-  wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1.poly || exit 1
+  wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1-latest.osm.pbf || exit 1
+  wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
+  (cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
+  wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1.poly || exit 1
 fi
 
 # Bounds
 
-BBOX=$(perl poly2bb.pl "$DATA_PATH/$NAME.poly")
+BBOX=$(perl poly2bb.pl "$WORK_PATH/$NAME.poly")
 BBOX=(${BBOX//,/ })
 BOTTOM=${BBOX[0]}
 LEFT=${BBOX[1]}
@@ -90,39 +95,39 @@ RIGHT=${BBOX[3]}
 
 # Start position
 
-CENTER=$(perl poly2center.pl "$DATA_PATH/$NAME.poly")
+CENTER=$(perl poly2center.pl "$WORK_PATH/$NAME.poly")
 CENTER=(${CENTER//,/ })
 LAT=${CENTER[0]}
 LON=${CENTER[1]}
 
 # Land
 
-ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP "$DATA_PATH/land.shp" "$LAND_PATH/land_polygons.shp"
-python shape2osm.py -l "$DATA_PATH/land" "$DATA_PATH/land.shp"
+ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP "$WORK_PATH/land.shp" "$DATA_PATH/land-polygons-split-4326/land_polygons.shp"
+python shape2osm.py -l "$WORK_PATH/land" "$WORK_PATH/land.shp"
 
 # Sea
 
-cp sea.osm "$DATA_PATH"
-sed -i "s/\$BOTTOM/$BOTTOM/g" "$DATA_PATH/sea.osm"
-sed -i "s/\$LEFT/$LEFT/g" "$DATA_PATH/sea.osm"
-sed -i "s/\$TOP/$TOP/g" "$DATA_PATH/sea.osm"
-sed -i "s/\$RIGHT/$RIGHT/g" "$DATA_PATH/sea.osm"
+cp sea.osm "$WORK_PATH"
+sed -i "s/\$BOTTOM/$BOTTOM/g" "$WORK_PATH/sea.osm"
+sed -i "s/\$LEFT/$LEFT/g" "$WORK_PATH/sea.osm"
+sed -i "s/\$TOP/$TOP/g" "$WORK_PATH/sea.osm"
+sed -i "s/\$RIGHT/$RIGHT/g" "$WORK_PATH/sea.osm"
 
 # Merge
 
-CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/$NAME-latest.osm.pbf \
-                               --rx file=$DATA_PATH/sea.osm --s --m"
-for f in $DATA_PATH/land*.osm; do
+CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
+                               --rx file=$WORK_PATH/sea.osm --s --m"
+for f in $WORK_PATH/land*.osm; do
   CMD="$CMD --rx file=$f --s --m"
 done
-CMD="$CMD --wb file=$DATA_PATH/merge.pbf omitmetadata=true"
+CMD="$CMD --wb file=$WORK_PATH/merge.pbf omitmetadata=true"
 echo $CMD
 $CMD
 
 # Map
 
 if [ "$SKIP_MAP_CREATION" != "true" ]; then
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/merge.pbf \
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf \
                                  --mw file=$MAPS_PATH/$NAME.map \
                                       type=$2 \
                                       bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
@@ -139,7 +144,7 @@ fi
 # POI
 
 if [ "$SKIP_POI_CREATION" != "true" ]; then
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$DATA_PATH/$NAME-latest.osm.pbf \
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
                                  --pw file=$POIS_PATH/$NAME.poi"
   [ $POI_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
   echo $CMD
