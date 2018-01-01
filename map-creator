@@ -69,7 +69,9 @@ fi
 
 # Download
 
-if [ "$SKIP_DOWNLOAD" != "true" ]; then
+if [ -f "$DATA_PATH/$NAME-latest.osm.pbf" ] && [ $(find "$DATA_PATH/$NAME-latest.osm.pbf" -mtime -$DAYS) ]; then
+  echo "File $DATA_PATH/$NAME-latest.osm.pbf exists and is newer than $DAYS days."
+else
   echo "Downloading $1 ..."
   wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf || exit 1
   wget -nv -N -P "$DATA_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
