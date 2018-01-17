@@ -137,6 +137,7 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
                                       threads=$THREADS"
   [ $3 ] && CMD="$CMD preferred-languages=$3"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
+  [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
   echo $CMD
   $CMD || exit 1
 fi
