@@ -53,7 +53,7 @@ mkdir -p "$MAPS_PATH"
 POIS_PATH="$(dirname "$POIS_PATH/$1")"
 mkdir -p "$POIS_PATH"
 
-# Check
+# Check map date
 
 if [ -f "$MAPS_PATH/$NAME.map" ]; then
   if [ $(find "$MAPS_PATH/$NAME.map" -mtime -$DAYS) ]; then
@@ -128,7 +128,7 @@ $CMD
 
 if [ "$SKIP_MAP_CREATION" != "true" ]; then
   CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf \
-                                 --mw file=$MAPS_PATH/$NAME.map \
+                                 --mw file=$MAPS_PATH/$NAME-2.map \
                                       type=$2 \
                                       bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
                                       map-start-position=$LAT,$LON \
@@ -140,6 +140,19 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
   [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
   echo $CMD
   $CMD || exit 1
+
+  # Check map size
+
+  if [ -f "$MAPS_PATH/$NAME.map" ]; then
+    OLD_SIZE=$(wc -c < "$MAPS_PATH/$NAME.map")
+    NEW_SIZE=$(wc -c < "$MAPS_PATH/$NAME-2.map")
+    if [ $NEW_SIZE -lt $(($OLD_SIZE * 70 / 100)) ]; then
+      echo "$MAPS_PATH/$NAME.map creation is significantly smaller."
+      rm -f "$MAPS_PATH/$NAME-2.map"
+      exit 1
+    fi
+  fi
+  mv "$MAPS_PATH/$NAME-2.map" "$MAPS_PATH/$NAME.map"
 fi
 
 # POI
