@@ -40,7 +40,6 @@ cd "$(dirname "$0")"
 NAME="$(basename "$1")"
 
 WORK_PATH="$DATA_PATH/$1"
-mkdir -p "$WORK_PATH"
 
 if [ "$TAG_VALUES" = "true" ]; then
   MAPS_PATH="$MAPS_PATH/v5"
@@ -48,10 +47,8 @@ else
   [ $3 ] && MAPS_PATH="$MAPS_PATH/v4" || MAPS_PATH="$MAPS_PATH/v3"
 fi
 MAPS_PATH="$(dirname "$MAPS_PATH/$1")"
-mkdir -p "$MAPS_PATH"
 
 POIS_PATH="$(dirname "$POIS_PATH/$1")"
-mkdir -p "$POIS_PATH"
 
 # Check map date
 
@@ -60,6 +57,19 @@ if [ -f "$MAPS_PATH/$NAME.map" ]; then
     echo "$MAPS_PATH/$NAME.map exists and is newer than $DAYS days."
     exit
   fi
+fi
+
+# Pre-process
+
+rm -rf "$WORK_PATH"
+mkdir -p "$WORK_PATH"
+
+if [ "$SKIP_MAP_CREATION" != "true" ]; then
+  mkdir -p "$MAPS_PATH"
+fi
+
+if [ "$SKIP_POI_CREATION" != "true" ]; then
+  mkdir -p "$POIS_PATH"
 fi
 
 # Download land
@@ -74,15 +84,11 @@ fi
 
 # Download data
 
-if [ -f "$WORK_PATH/$NAME-latest.osm.pbf" ] && [ $(find "$WORK_PATH/$NAME-latest.osm.pbf" -mtime -$DAYS) ]; then
-  echo "$WORK_PATH/$NAME-latest.osm.pbf exists and is newer than $DAYS days."
-else
-  echo "Downloading $1 ..."
-  wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1-latest.osm.pbf || exit 1
-  wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
-  (cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
-  wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1.poly || exit 1
-fi
+echo "Downloading $1 ..."
+wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1-latest.osm.pbf || exit 1
+wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
+(cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
+wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1.poly || exit 1
 
 # Bounds
 
@@ -164,3 +170,7 @@ if [ "$SKIP_POI_CREATION" != "true" ]; then
   echo $CMD
   $CMD || exit 1
 fi 
+
+# Post-process
+
+rm -rf "$WORK_PATH"
