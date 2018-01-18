@@ -135,7 +135,7 @@ $CMD
 if [ "$SKIP_MAP_CREATION" != "true" ]; then
   CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf"
   [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
-  CMD="$CMD --mw file=$MAPS_PATH/$NAME-2.map \
+  CMD="$CMD --mw file=$WORK_PATH/$NAME.map \
                  type=$2 \
                  bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
                  map-start-position=$LAT,$LON \
@@ -151,25 +151,25 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
 
   if [ -f "$MAPS_PATH/$NAME.map" ]; then
     OLD_SIZE=$(wc -c < "$MAPS_PATH/$NAME.map")
-    NEW_SIZE=$(wc -c < "$MAPS_PATH/$NAME-2.map")
+    NEW_SIZE=$(wc -c < "$WORK_PATH/$NAME.map")
     if [ $NEW_SIZE -lt $(($OLD_SIZE * 70 / 100)) ]; then
       echo "$MAPS_PATH/$NAME.map creation is significantly smaller."
-      rm -f "$MAPS_PATH/$NAME-2.map"
       exit 1
     fi
   fi
-  mv "$MAPS_PATH/$NAME-2.map" "$MAPS_PATH/$NAME.map"
+  mv "$WORK_PATH/$NAME.map" "$MAPS_PATH/$NAME.map"
 fi
 
 # POI
 
 if [ "$SKIP_POI_CREATION" != "true" ]; then
   CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
-                                 --pw file=$POIS_PATH/$NAME.poi"
+                                 --pw file=$WORK_PATH/$NAME.poi"
   [ $POI_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
   echo $CMD
   $CMD || exit 1
-fi 
+  mv "$WORK_PATH/$NAME.poi" "$POIS_PATH/$NAME.poi"
+fi
 
 # Post-process
 
