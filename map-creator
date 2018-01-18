@@ -127,17 +127,17 @@ $CMD
 # Map
 
 if [ "$SKIP_MAP_CREATION" != "true" ]; then
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf \
-                                 --mw file=$MAPS_PATH/$NAME-2.map \
-                                      type=$2 \
-                                      bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
-                                      map-start-position=$LAT,$LON \
-                                      map-start-zoom=8 \
-                                      tag-values=$TAG_VALUES \
-                                      threads=$THREADS"
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf"
+  [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
+  CMD="$CMD --mw file=$MAPS_PATH/$NAME-2.map \
+                 type=$2 \
+                 bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
+                 map-start-position=$LAT,$LON \
+                 map-start-zoom=8 \
+                 tag-values=$TAG_VALUES \
+                 threads=$THREADS"
   [ $3 ] && CMD="$CMD preferred-languages=$3"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
-  [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
   echo $CMD
   $CMD || exit 1
 
