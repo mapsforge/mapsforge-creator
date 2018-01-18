@@ -153,7 +153,7 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
     OLD_SIZE=$(wc -c < "$MAPS_PATH/$NAME.map")
     NEW_SIZE=$(wc -c < "$WORK_PATH/$NAME.map")
     if [ $NEW_SIZE -lt $(($OLD_SIZE * 70 / 100)) ]; then
-      echo "$MAPS_PATH/$NAME.map creation is significantly smaller."
+      echo "$WORK_PATH/$NAME.map creation is significantly smaller."
       exit 1
     fi
   fi
