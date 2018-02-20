@@ -77,14 +77,16 @@ fi
 if [ -f "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" ] && [ $(find "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" -mtime -$DAYS) ]; then
   echo "Land polygons exist and are newer than $DAYS days."
 else
-  echo "Downloading land polygons ..."
+  echo "Downloading land polygons..."
+  rm -rf "$DATA_PATH/land-polygons-split-4326"
+  rm -f "$DATA_PATH/land-polygons-split-4326.zip"
   wget -nv -N -P "$DATA_PATH" http://data.openstreetmapdata.com/land-polygons-split-4326.zip || exit 1
   unzip -oq "$DATA_PATH/land-polygons-split-4326.zip" -d "$DATA_PATH"
 fi
 
 # Download data
 
-echo "Downloading $1 ..."
+echo "Downloading $1..."
 wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1-latest.osm.pbf || exit 1
 wget -nv -N -P "$WORK_PATH" http://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
 (cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
