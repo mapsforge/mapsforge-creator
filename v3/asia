@@ -3,8 +3,10 @@
 cd "$(dirname "$0")"
 
 ../map-creator asia/afghanistan ram
+../map-creator asia/armenia ram
 ../map-creator asia/azerbaijan ram
 ../map-creator asia/bangladesh ram
+../map-creator asia/bhutan ram
 ../map-creator asia/cambodia ram
 ../map-creator asia/china ram
 ../map-creator asia/gcc-states ram
@@ -17,6 +19,7 @@ cd "$(dirname "$0")"
 ../map-creator asia/jordan ram
 ../map-creator asia/kazakhstan ram
 ../map-creator asia/kyrgyzstan ram
+../map-creator asia/laos ram
 ../map-creator asia/lebanon ram
 ../map-creator asia/malaysia-singapore-brunei ram
 ../map-creator asia/maldives ram

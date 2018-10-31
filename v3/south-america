@@ -12,3 +12,4 @@ cd "$(dirname "$0")"
 ../map-creator south-america/peru ram
 ../map-creator south-america/suriname ram
 ../map-creator south-america/uruguay ram
+../map-creator south-america/venezuela ram
