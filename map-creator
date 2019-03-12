@@ -95,15 +95,25 @@ wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 
 wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
 
 # Bounds
-MAX_LAT=70
-MIN_LAT=-70
+MAX_LAT=73
+MIN_LAT=-73
 
 BBOX=$(perl poly2bb.pl "$WORK_PATH/$NAME.poly")
 BBOX=(${BBOX//,/ })
-BOTTOM=$(( ${BBOX[0]}  > $MIN_LAT ? ${BBOX[0]} : $MIN_LAT ))
 LEFT=${BBOX[1]}
-TOP=$(( ${BBOX[2]}  < $MAX_LAT ? ${BBOX[2]} : $MAX_LAT ))
 RIGHT=${BBOX[3]}
+
+if (( ${BBOX[0]%.*} > $MIN_LAT )); then
+  BOTTOM=${BBOX[0]}
+else
+  BOTTOM=$MIN_LAT
+fi
+
+if (( ${BBOX[2]%.*} < $MAX_LAT )); then
+  TOP=${BBOX[2]}
+else
+  TOP=$MAX_LAT
+fi
 
 # Start position
 
