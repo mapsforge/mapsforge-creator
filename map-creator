@@ -191,6 +191,8 @@ fi
 
 # Post-process
 if [ "$S3_BUCKET" != "" ]; then
-  aws s3 cp $MAPS_PATH/$NAME.map s3://$S3_BUCKET/$NAME.map
+  CMD="aws s3 cp $MAPS_PATH/$NAME.map s3://$S3_BUCKET/$NAME.map"
+  echo $CMD
+  $CMD
 fi
 rm -rf "$WORK_PATH"
