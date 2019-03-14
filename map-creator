@@ -191,7 +191,7 @@ fi
 
 # Post-process
 if [ "$S3_BUCKET" != "" ]; then
-  CMD="aws s3 cp $MAPS_PATH/$NAME.map s3://$S3_BUCKET/$NAME.map"
+  CMD="aws s3 cp $MAPS_PATH/$NAME.map s3://$S3_BUCKET/$1.map"
   echo $CMD
   $CMD
 fi
