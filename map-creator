@@ -190,5 +190,7 @@ if [ "$SKIP_POI_CREATION" != "true" ]; then
 fi
 
 # Post-process
-
+if [ "$S3_BUCKET" != "" ]; then
+  aws s3 cp $MAPS_PATH/$NAME.map s3://$S3_BUCKET/$NAME.map
+fi
 rm -rf "$WORK_PATH"
