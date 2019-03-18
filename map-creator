@@ -183,6 +183,13 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
     fi
   fi
   mv "$WORK_PATH/$NAME.map" "$MAPS_PATH/$NAME.map"
+
+  # Post-process
+  if [ "$S3_BUCKET" != "" ]; then
+    CMD="aws s3 cp $MAPS_PATH/$NAME.map s3://$S3_BUCKET/$1.map"
+    echo $CMD
+    $CMD
+  fi
 fi
 
 # POI
@@ -197,10 +204,4 @@ if [ "$SKIP_POI_CREATION" != "true" ]; then
   mv "$WORK_PATH/$NAME.poi" "$POIS_PATH/$NAME.poi"
 fi
 
-# Post-process
-if [ "$S3_BUCKET" != "" ]; then
-  CMD="aws s3 cp $MAPS_PATH/$NAME.map s3://$S3_BUCKET/$1.map"
-  echo $CMD
-  $CMD
-fi
 rm -rf "$WORK_PATH"
