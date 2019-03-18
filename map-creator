@@ -115,6 +115,14 @@ else
   TOP=$MAX_LAT
 fi
 
+# Write bounds file
+echo $1\n$LEFT $BOTTOM $RIGHT $TOP >> $WORK_PATH/$NAME-extent.txt
+if [ "$S3_BUCKET" != "" ]; then
+  CMD="aws s3 cp $WORK_PATH/$NAME-extent.txt s3://$S3_BUCKET/$1-extent.txt"
+  echo $CMD
+  $CMD
+fi
+
 # Start position
 
 CENTER=$(perl poly2center.pl "$WORK_PATH/$NAME.poly")
