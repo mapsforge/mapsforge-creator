@@ -116,7 +116,9 @@ else
 fi
 
 # Write bounds file
-echo $1\n$LEFT $BOTTOM $RIGHT $TOP >> $WORK_PATH/$NAME-extent.txt
+echo $1 >> $WORK_PATH/$NAME-extent.txt
+echo $LEFT $BOTTOM $RIGHT $TOP >> $WORK_PATH/$NAME-extent.txt
+
 if [ "$S3_BUCKET" != "" ]; then
   CMD="aws s3 cp $WORK_PATH/$NAME-extent.txt s3://$S3_BUCKET/$1-extent.txt"
   echo $CMD
