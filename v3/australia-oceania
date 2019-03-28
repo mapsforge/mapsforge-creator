@@ -2,7 +2,7 @@
 
 cd "$(dirname "$0")"
 
-../map-creator australia-oceania/australia ram
+../map-creator australia-oceania/australia hd
 ../map-creator australia-oceania/fiji ram
 ../map-creator australia-oceania/new-caledonia ram
 ../map-creator australia-oceania/new-zealand ram
