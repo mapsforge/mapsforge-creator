@@ -53,7 +53,6 @@ MAPS_PATH="$(dirname "$MAPS_PATH/$1")"
 POIS_PATH="$(dirname "$POIS_PATH/$1")"
 
 # Check map date
-
 if [ -f "$MAPS_PATH/$NAME.map" ]; then
   if [ $(find "$MAPS_PATH/$NAME.map" -mtime -$DAYS) ]; then
     echo "$MAPS_PATH/$NAME.map exists and is newer than $DAYS days."
@@ -62,7 +61,6 @@ if [ -f "$MAPS_PATH/$NAME.map" ]; then
 fi
 
 # Pre-process
-
 rm -rf "$WORK_PATH"
 mkdir -p "$WORK_PATH"
 
@@ -75,7 +73,6 @@ if [ "$SKIP_POI_CREATION" != "true" ]; then
 fi
 
 # Download land
-
 if [ -f "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" ] && [ $(find "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" -mtime -$DAYS) ]; then
   echo "Land polygons exist and are newer than $DAYS days."
 else
@@ -87,7 +84,6 @@ else
 fi
 
 # Download data
-
 echo "Downloading $1..."
 wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf || exit 1
 wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
@@ -128,19 +124,16 @@ if [ "$S3_BUCKET" != "" ]; then
 fi
 
 # Start position
-
 CENTER=$(perl poly2center.pl "$WORK_PATH/$NAME.poly")
 CENTER=(${CENTER//,/ })
 LAT=${CENTER[0]}
 LON=${CENTER[1]}
 
 # Land
-
 ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP "$WORK_PATH/land.shp" "$DATA_PATH/land-polygons-split-4326/land_polygons.shp"
 python shape2osm.py -l "$WORK_PATH/land" "$WORK_PATH/land.shp"
 
 # Sea
-
 cp sea.osm "$WORK_PATH"
 sed -i "s/\$BOTTOM/$BOTTOM/g" "$WORK_PATH/sea.osm"
 sed -i "s/\$LEFT/$LEFT/g" "$WORK_PATH/sea.osm"
@@ -148,7 +141,6 @@ sed -i "s/\$TOP/$TOP/g" "$WORK_PATH/sea.osm"
 sed -i "s/\$RIGHT/$RIGHT/g" "$WORK_PATH/sea.osm"
 
 # Merge
-
 CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
                                --rx file=$WORK_PATH/sea.osm --s --m"
 for f in $WORK_PATH/land*.osm; do
@@ -159,7 +151,6 @@ echo $CMD
 $CMD
 
 # Map
-
 if [ "$SKIP_MAP_CREATION" != "true" ]; then
   CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf"
   [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
@@ -177,7 +168,6 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
   $CMD || exit 1
 
   # Check map size
-
   if [ -f "$MAPS_PATH/$NAME.map" ]; then
     OLD_SIZE=$(wc -c < "$MAPS_PATH/$NAME.map")
     NEW_SIZE=$(wc -c < "$WORK_PATH/$NAME.map")
@@ -197,7 +187,6 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
 fi
 
 # POI
-
 if [ "$SKIP_POI_CREATION" != "true" ]; then
   CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
                                  --pw file=$WORK_PATH/$NAME.poi \
