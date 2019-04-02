@@ -95,10 +95,13 @@ wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 
 wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
 
 # Bounds
+if [ "$BBOX" == "" ]; then
+  BBOX=$(perl poly2bb.pl "$WORK_PATH/$NAME.poly")
+fi
+
 MAX_LAT=73
 MIN_LAT=-73
 
-BBOX=$(perl poly2bb.pl "$WORK_PATH/$NAME.poly")
 BBOX=(${BBOX//,/ })
 LEFT=${BBOX[1]}
 RIGHT=${BBOX[3]}
