@@ -11,7 +11,9 @@ $maxy = -360;
 $minx = 360;
 $miny = 360;
 
-while(<>)
+open(f, $ARGV[0]);
+
+while(<f>)
 {
    if (/^\s+([0-9.E+-]+)\s+([0-9.E+-]+)\s*$/)
    {
@@ -22,8 +24,9 @@ while(<>)
        $miny = $y if ($y<$miny);
    }
 }
+close($ARGV[0]);
 
-$buffer = 0.1;
+$buffer = $ARGV[1];
 $miny = $miny - $buffer;
 $miny = $miny < -90 ? -90 : $miny;
 $minx = $minx - $buffer;

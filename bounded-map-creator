@@ -11,14 +11,17 @@
 
 # http://wiki.openstreetmap.org/wiki/Osmosis
 
-[ $OSMOSIS_HOME ] || OSMOSIS_HOME="$HOME/programs/osmosis"
-[ $DATA_PATH ] || DATA_PATH="$HOME/mapsforge/data"
-[ $MAPS_PATH ] || MAPS_PATH="$HOME/mapsforge/maps"
-[ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
+[ $OSMOSIS_HOME ] || OSMOSIS_HOME="/home/dnesbitt/osmosis"
+[ $DATA_PATH ] || DATA_PATH="./mapsforge/data"
+[ $MAPS_PATH ] || MAPS_PATH="./mapsforge/maps"
+[ $POIS_PATH ] || POIS_PATH="./mapsforge/pois"
 [ $PROGRESS_LOGS ] || PROGRESS_LOGS="true"
 [ $TAG_VALUES ] || TAG_VALUES="false"
-[ $THREADS ] || THREADS="1"
-[ $DAYS ] || DAYS="30"
+[ $THREADS ] || THREADS="12"
+[ $DAYS ] || DAYS="7"
+[ $MAP_TAG_CONF_FILE ] || MAP_TAG_CONF_FILE="./tag-mapping.xml"
+[ $SKIP_MAP_CREATION ] || SKIP_MAP_CREATION="false"
+[ $SKIP_POI_CREATION ] || SKIP_POI_CREATION="true"
 
 # =========== DO NOT CHANGE AFTER THIS LINE. ===========================
 # Below here is regular code, part of the file. This is not designed to
@@ -26,27 +29,27 @@
 # ======================================================================
 
 if [ $# -lt 3 ]; then
-  echo "Usage: $0 continent/country[/region] buffer_size ram|hd [lang,...]"
-  echo "Example: $0 europe/germany/berlin 0.1 ram en,de,fr,es"
+  echo "Usage: $0 continent country minlon minlat maxlon maxlat centerlon centerlat ram|hd [lang,...]"
+  echo "Example: $0 central-america bahamas -79.0 20.0 -70.0 27.0 -74.5 23.5 ram en,de,fr,es"
   exit
 fi
 
 cd "$(dirname "$0")"
 
-NAME="$(basename "$1")"
+NAME="$2"
 WORK_PATH="$DATA_PATH/$1"
-BUFFER_SIZE="$2"
 
 if [ "$TAG_VALUES" = "true" ]; then
   MAPS_PATH="$MAPS_PATH/v5"
 else
-  [ $3 ] && MAPS_PATH="$MAPS_PATH/v4" || MAPS_PATH="$MAPS_PATH/v3"
+  MAPS_PATH="$MAPS_PATH/v4"
 fi
-MAPS_PATH="$(dirname "$MAPS_PATH/$1")"
 
-POIS_PATH="$(dirname "$POIS_PATH/$1")"
+MAPS_PATH="$(dirname "$MAPS_PATH/$1/$2")"
+POIS_PATH="$(dirname "$POIS_PATH/$1/$2")"
 
 # Check map date
+
 if [ -f "$MAPS_PATH/$NAME.map" ]; then
   if [ $(find "$MAPS_PATH/$NAME.map" -mtime -$DAYS) ]; then
     echo "$MAPS_PATH/$NAME.map exists and is newer than $DAYS days."
@@ -55,7 +58,8 @@ if [ -f "$MAPS_PATH/$NAME.map" ]; then
 fi
 
 # Pre-process
-rm -rf "$WORK_PATH"
+
+#rm -rf "$WORK_PATH"
 mkdir -p "$WORK_PATH"
 
 if [ "$SKIP_MAP_CREATION" != "true" ]; then
@@ -67,6 +71,7 @@ if [ "$SKIP_POI_CREATION" != "true" ]; then
 fi
 
 # Download land
+
 if [ -f "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" ] && [ $(find "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" -mtime -$DAYS) ]; then
   echo "Land polygons exist and are newer than $DAYS days."
 else
@@ -77,50 +82,29 @@ else
   unzip -oq "$DATA_PATH/land-polygons-split-4326.zip" -d "$DATA_PATH"
 fi
 
-#Name override
-if [ "$FILE_NAME" == "" ]; then
-  FILE_NAME=$1
-  FILE_BASE=$NAME
+# Download data
+echo "Check if $WORK_PATH/$1-latest.osm.pbf exists"
+if [ -f "$WORK_PATH/$NAME-latest.osm.pbf" ] && [ $(find "$WORK_PATH/$NAME-latest.osm.pbf" -mtime -$DAYS) ]; then
+    echo "OSM data exists and is newer than $DAYS days."
 else
-  FILE_BASE="$(basename "$FILE_NAME")"
+  echo "Downloading $1..."
+  wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf || exit 1
+  wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
+  (cd "$WORK_PATH" && exec md5sum -c "$1-latest.osm.pbf.md5") || exit 1
+  wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
 fi
 
-# Download data
-echo "Downloading $1..."
-wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$FILE_NAME-latest.osm.pbf || exit 1
-wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$FILE_NAME-latest.osm.pbf.md5 || exit 1
-(cd "$WORK_PATH" && exec md5sum -c "$FILE_BASE-latest.osm.pbf.md5") || exit 1
-wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$FILE_NAME.poly || exit 1
+echo "Get bounds from command line arguments"
 
 # Bounds
-echo "Buffer Size = $BUFFER_SIZE"
-BBOX=$(perl poly2bb.pl "$WORK_PATH/$FILE_BASE.poly" $BUFFER_SIZE)
-
-MAX_LAT=73
-MIN_LAT=-73
-
-BBOX=(${BBOX//,/ })
-LEFT=${BBOX[1]}
-RIGHT=${BBOX[3]}
-
-if (( ${BBOX[0]%.*} > $MIN_LAT )); then
-  BOTTOM=${BBOX[0]}
-else
-  BOTTOM=$MIN_LAT
-fi
-
-if (( ${BBOX[2]%.*} < $MAX_LAT )); then
-  TOP=${BBOX[2]}
-else
-  TOP=$MAX_LAT
-fi
+LEFT=$3
+BOTTOM=$4
+RIGHT=$5
+TOP=$6
 
 # Start position
-
-CENTER=$(perl poly2center.pl "$WORK_PATH/$NAME.poly")
-CENTER=(${CENTER//,/ })
-LAT=${CENTER[0]}
-LON=${CENTER[1]}
+LON=$7
+LAT=$8
 
 # Fiji crosses 180 longitude, adjust its longitude bounds and center
 if [ "$1" == "australia-oceania/fiji" ]; then
@@ -129,21 +113,33 @@ if [ "$1" == "australia-oceania/fiji" ]; then
   LON=178.0
 fi
 
-echo "BBOX: $LEFT,$BOTTOM to $RIGHT,$TOP"
+echo "BBOX: $LEFT,$BOTTOM to $RIGHT,$TOP Center $LAT,$LON"
 
 # Land
+echo "Run ogr2ogr"
 ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP "$WORK_PATH/land.shp" "$DATA_PATH/land-polygons-split-4326/land_polygons.shp"
+echo "Run shape2osm"
 python shape2osm.py -l "$WORK_PATH/land" "$WORK_PATH/land.shp"
 
 # Sea
+
 cp sea.osm "$WORK_PATH"
 sed -i "s/\$BOTTOM/$BOTTOM/g" "$WORK_PATH/sea.osm"
 sed -i "s/\$LEFT/$LEFT/g" "$WORK_PATH/sea.osm"
 sed -i "s/\$TOP/$TOP/g" "$WORK_PATH/sea.osm"
 sed -i "s/\$RIGHT/$RIGHT/g" "$WORK_PATH/sea.osm"
 
-# Merge
-CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$FILE_BASE-latest.osm.pbf \
+# Extract OSM features within the bounding box
+echo "Extract OSM features within bounding box"
+CMD="$OSMOSIS_HOME/bin/osmosis --read-pbf $WORK_PATH/$1-latest.osm.pbf \
+                               --bounding-box top=$TOP left=$LEFT bottom=$BOTTOM right=$RIGHT \
+                               --write-pbf $WORK_PATH/$1-clipped.osm.pbf"
+echo $CMD
+$CMD
+
+# Merge extracted features with land and sea polygon data
+echo "Merge clipped OSM features with land and sea polygons"
+CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$1-clipped.osm.pbf \
                                --rx file=$WORK_PATH/sea.osm --s --m"
 for f in $WORK_PATH/land*.osm; do
   CMD="$CMD --rx file=$f --s --m"
@@ -153,39 +149,41 @@ echo $CMD
 $CMD
 
 # Map
+echo "Create Mapsforge map file"
 if [ "$SKIP_MAP_CREATION" != "true" ]; then
   CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf"
   [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
-  CMD="$CMD --mw file=$WORK_PATH/$NAME.map \
-                 type=$2 \
+  CMD="$CMD --mw file=$WORK_PATH/$2.map \
+                 type=$9 \
                  bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
                  map-start-position=$LAT,$LON \
                  map-start-zoom=8 \
                  tag-values=$TAG_VALUES \
                  threads=$THREADS \
                  progress-logs=$PROGRESS_LOGS"
-  [ $4 ] && CMD="$CMD preferred-languages=$4"
+  [ $4 ] && CMD="$CMD preferred-languages=$10"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
   echo $CMD
   $CMD || exit 1
 
   # Check map size
+
   if [ -f "$MAPS_PATH/$NAME.map" ]; then
-    OLD_SIZE=$(wc -c < "$MAPS_PATH/$NAME.map")
-    NEW_SIZE=$(wc -c < "$WORK_PATH/$NAME.map")
+    OLD_SIZE=$(wc -c < "$MAPS_PATH/$2.map")
+    NEW_SIZE=$(wc -c < "$WORK_PATH/$2.map")
     if [ $NEW_SIZE -lt $(($OLD_SIZE * 70 / 100)) ]; then
       echo "$WORK_PATH/$NAME.map creation is significantly smaller."
       exit 1
     fi
   fi
   mv "$WORK_PATH/$NAME.map" "$MAPS_PATH/$NAME.map"
-
 fi
 
 # POI
+
 if [ "$SKIP_POI_CREATION" != "true" ]; then
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
-                                 --pw file=$WORK_PATH/$NAME.poi \
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$1-latest.osm.pbf \
+                                 --pw file=$WORK_PATH/$1.poi \
                                       progress-logs=$PROGRESS_LOGS"
   [ $POI_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
   echo $CMD
@@ -193,4 +191,5 @@ if [ "$SKIP_POI_CREATION" != "true" ]; then
   mv "$WORK_PATH/$NAME.poi" "$POIS_PATH/$NAME.poi"
 fi
 
-rm -rf "$WORK_PATH"
+# Post-process
+#rm -rf "$WORK_PATH"
