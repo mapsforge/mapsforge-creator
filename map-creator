@@ -82,11 +82,11 @@ echo "Downloading $1..."
 wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf || exit 1
 wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
 (cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
-wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1ILE_NAME.poly || exit 1
+wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
 
 # Bounds
 echo "Buffer Size = $BUFFER_SIZE"
-BBOX=$(perl poly2bb.pl "$WORK_PATH/$FILE_BASE.poly" $BUFFER_SIZE)
+BBOX=$(perl poly2bb.pl "$WORK_PATH/$NAME.poly" $BUFFER_SIZE)
 
 MAX_LAT=73
 MIN_LAT=-73
@@ -135,7 +135,7 @@ sed -i "s/\$TOP/$TOP/g" "$WORK_PATH/sea.osm"
 sed -i "s/\$RIGHT/$RIGHT/g" "$WORK_PATH/sea.osm"
 
 # Merge
-CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$FILE_BASE-latest.osm.pbf \
+CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
                                --rx file=$WORK_PATH/sea.osm --s --m"
 for f in $WORK_PATH/land*.osm; do
   CMD="$CMD --rx file=$f --s --m"
@@ -149,7 +149,7 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
   CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf"
   [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
   CMD="$CMD --mw file=$WORK_PATH/$NAME.map \
-                 type=$2 \
+                 type=$3 \
                  bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
                  map-start-position=$LAT,$LON \
                  map-start-zoom=8 \

@@ -11,13 +11,13 @@
 
 # http://wiki.openstreetmap.org/wiki/Osmosis
 
-[ $OSMOSIS_HOME ] || OSMOSIS_HOME="/home/dnesbitt/osmosis"
-[ $DATA_PATH ] || DATA_PATH="./mapsforge/data"
-[ $MAPS_PATH ] || MAPS_PATH="./mapsforge/maps"
-[ $POIS_PATH ] || POIS_PATH="./mapsforge/pois"
+[ $OSMOSIS_HOME ] || OSMOSIS_HOME="$HOME/programs/osmosis"
+[ $DATA_PATH ] || DATA_PATH="$HOME/mapsforge/data"
+[ $MAPS_PATH ] || MAPS_PATH="$HOME/mapsforge/maps"
+[ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
 [ $PROGRESS_LOGS ] || PROGRESS_LOGS="true"
 [ $TAG_VALUES ] || TAG_VALUES="false"
-[ $THREADS ] || THREADS="12"
+[ $THREADS ] || THREADS="8"
 [ $DAYS ] || DAYS="7"
 [ $MAP_TAG_CONF_FILE ] || MAP_TAG_CONF_FILE="./tag-mapping.xml"
 [ $SKIP_MAP_CREATION ] || SKIP_MAP_CREATION="false"
