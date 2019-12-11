@@ -22,7 +22,7 @@
 
 [ $TAG_VALUES ] || TAG_VALUES="false"
 
-[ $COMMENT ] || COMMENT="Map (c) OpenStreetMap contributors"
+[ $COMMENT ] || COMMENT="Map data (c) OpenStreetMap contributors"
 
 [ $THREADS ] || THREADS="1"
 
@@ -147,13 +147,13 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
                  map-start-position=$LAT,$LON \
                  map-start-zoom=8 \
                  tag-values=$TAG_VALUES \
-                 comment=$COMMENT \
+                 comment=\"$COMMENT\" \
                  threads=$THREADS \
                  progress-logs=$PROGRESS_LOGS"
   [ $3 ] && CMD="$CMD preferred-languages=$3"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
   echo $CMD
-  $CMD || exit 1
+  eval "$CMD" || exit 1
 
   # Check map size
 
@@ -173,11 +173,11 @@ fi
 if [ "$SKIP_POI_CREATION" != "true" ]; then
   CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
                                  --pw file=$WORK_PATH/$NAME.poi \
-                                      comment=$COMMENT \
+                                      comment=\"$COMMENT\" \
                                       progress-logs=$PROGRESS_LOGS"
   [ $POI_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
   echo $CMD
-  $CMD || exit 1
+  eval "$CMD" || exit 1
   mv "$WORK_PATH/$NAME.poi" "$POIS_PATH/$NAME.poi"
 fi
 
