@@ -18,6 +18,10 @@
 
 [ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
 
+[ $GRAPHS_PATH ] || GRAPHS_PATH="$HOME/mapsforge/graphs"
+
+[ $GRAPHHOPPER_HOME ] || GRAPHHOPPER_HOME="$HOME/programs/graphhopper"
+
 [ $PROGRESS_LOGS ] || PROGRESS_LOGS="true"
 
 [ $TAG_VALUES ] || TAG_VALUES="false"
@@ -27,6 +31,12 @@
 [ $THREADS ] || THREADS="1"
 
 [ $DAYS ] || DAYS="30"
+
+[ $SKIP_MAP_CREATION ] || SKIP_MAP_CREATION="false"
+
+[ $SKIP_POI_CREATION ] || SKIP_POI_CREATION="false"
+
+[ $SKIP_GRAPH_CREATION ] || SKIP_GRAPH_CREATION="true"
 
 # =========== DO NOT CHANGE AFTER THIS LINE. ===========================
 # Below here is regular code, part of the file. This is not designed to
@@ -54,6 +64,8 @@ MAPS_PATH="$(dirname "$MAPS_PATH/$1")"
 
 POIS_PATH="$(dirname "$POIS_PATH/$1")"
 
+GRAPHS_PATH="$(dirname "$GRAPHS_PATH/$1")"
+
 # Check map date
 
 if [ -f "$MAPS_PATH/$NAME.map" ]; then
@@ -74,6 +86,10 @@ fi
 
 if [ "$SKIP_POI_CREATION" != "true" ]; then
   mkdir -p "$POIS_PATH"
+fi
+
+if [ "$SKIP_GRAPH_CREATION" != "true" ]; then
+  mkdir -p "$GRAPHS_PATH"
 fi
 
 # Download land
@@ -179,6 +195,20 @@ if [ "$SKIP_POI_CREATION" != "true" ]; then
   echo $CMD
   eval "$CMD" || exit 1
   mv "$WORK_PATH/$NAME.poi" "$POIS_PATH/$NAME.poi"
+fi
+
+# Graph
+
+if [ "$SKIP_GRAPH_CREATION" != "true" ]; then
+  CMD="java -Xmx1024M \
+            -Dgraphhopper.datareader.file=$WORK_PATH/$NAME-latest.osm.pbf \
+            -Dgraphhopper.graph.location=$WORK_PATH/$NAME \
+            -jar $GRAPHHOPPER_HOME/graphhopper.jar \
+            import \
+            $GRAPHHOPPER_HOME/config.yml"
+  echo $CMD
+  eval "$CMD" || exit 1
+  cd "$WORK_PATH" && zip -r "$GRAPHS_PATH/$NAME.zip" "$NAME" && cd -
 fi
 
 # Post-process
