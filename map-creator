@@ -200,7 +200,7 @@ fi
 # Graph
 
 if [ "$SKIP_GRAPH_CREATION" != "true" ]; then
-  CMD="java -Xmx1024M \
+  CMD="java $JAVACMD_OPTIONS \
             -Dgraphhopper.datareader.file=$WORK_PATH/$NAME-latest.osm.pbf \
             -Dgraphhopper.graph.location=$WORK_PATH/$NAME \
             -jar $GRAPHHOPPER_HOME/graphhopper.jar \
