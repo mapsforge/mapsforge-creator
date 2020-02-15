@@ -10,9 +10,9 @@
 
 # Configuration
 
-[ $SKIP_MAP_CREATION ] || SKIP_MAP_CREATION="false"
-[ $SKIP_POI_CREATION ] || SKIP_POI_CREATION="false"
-[ $SKIP_GRAPH_CREATION ] || SKIP_GRAPH_CREATION="true"
+[ $MAP_CREATION ] || MAP_CREATION="true"
+[ $POI_CREATION ] || POI_CREATION="true"
+[ $GRAPH_CREATION ] || GRAPH_CREATION="false"
 
 [ $OSMOSIS_HOME ] || OSMOSIS_HOME="$HOME/programs/osmosis"
 [ $GRAPHHOPPER_HOME ] || GRAPHHOPPER_HOME="$HOME/programs/graphhopper"
@@ -57,28 +57,28 @@ GRAPHS_PATH="$(dirname "$GRAPHS_PATH/$1")"
 
 # Check dates
 
-if [ "$SKIP_MAP_CREATION" != "true" ]; then
+if [ "$MAP_CREATION" = "true" ]; then
   if [ -f "$MAPS_PATH/$NAME.map" ] && [ $(find "$MAPS_PATH/$NAME.map" -mtime -$DAYS) ]; then
     echo "$MAPS_PATH/$NAME.map exists and is newer than $DAYS days."
-    SKIP_MAP_CREATION="true"
+    MAP_CREATION="false"
   fi
 fi
 
-if [ "$SKIP_POI_CREATION" != "true" ]; then
+if [ "$POI_CREATION" = "true" ]; then
   if [ -f "$POIS_PATH/$NAME.poi" ] && [ $(find "$POIS_PATH/$NAME.poi" -mtime -$DAYS) ]; then
     echo "$POIS_PATH/$NAME.poi exists and is newer than $DAYS days."
-    SKIP_POI_CREATION="true"
+    POI_CREATION="false"
   fi
 fi
 
-if [ "$SKIP_GRAPH_CREATION" != "true" ]; then
+if [ "$GRAPH_CREATION" = "true" ]; then
   if [ -f "$GRAPHS_PATH/$NAME.zip" ] && [ $(find "$GRAPHS_PATH/$NAME.zip" -mtime -$DAYS) ]; then
     echo "$GRAPHS_PATH/$NAME.zip exists and is newer than $DAYS days."
-    SKIP_GRAPH_CREATION="true"
+    GRAPH_CREATION="false"
   fi
 fi
 
-if [ "$SKIP_MAP_CREATION" = "true" ] && [ "$SKIP_POI_CREATION" = "true" ] && [ "$SKIP_GRAPH_CREATION" = "true" ]; then
+if [ "$MAP_CREATION" = "false" ] && [ "$POI_CREATION" = "false" ] && [ "$GRAPH_CREATION" = "false" ]; then
   exit
 fi
 
@@ -87,15 +87,15 @@ fi
 rm -rf "$WORK_PATH"
 mkdir -p "$WORK_PATH"
 
-if [ "$SKIP_MAP_CREATION" != "true" ]; then
+if [ "$MAP_CREATION" = "true" ]; then
   mkdir -p "$MAPS_PATH"
 fi
 
-if [ "$SKIP_POI_CREATION" != "true" ]; then
+if [ "$POI_CREATION" = "true" ]; then
   mkdir -p "$POIS_PATH"
 fi
 
-if [ "$SKIP_GRAPH_CREATION" != "true" ]; then
+if [ "$GRAPH_CREATION" = "true" ]; then
   mkdir -p "$GRAPHS_PATH"
 fi
 
@@ -109,7 +109,7 @@ wget -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
 
 # ========== Map ==========
 
-if [ "$SKIP_MAP_CREATION" != "true" ]; then
+if [ "$MAP_CREATION" = "true" ]; then
 
   # Download land
 
@@ -198,7 +198,7 @@ fi
 
 # ========== POI ==========
 
-if [ "$SKIP_POI_CREATION" != "true" ]; then
+if [ "$POI_CREATION" = "true" ]; then
 
   # POI writer
 
@@ -218,7 +218,7 @@ fi
 
 # ========== Graph ==========
 
-if [ "$SKIP_GRAPH_CREATION" != "true" ]; then
+if [ "$GRAPH_CREATION" = "true" ]; then
 
   # Graph writer
 
