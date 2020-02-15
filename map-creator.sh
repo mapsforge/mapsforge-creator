@@ -32,7 +32,7 @@
 # be modified by users.
 # ======================================================================
 
-if [ $# != 1 ] && [ $# != 4 ]; then
+if [ $# -lt 1 ]; then
   echo "Usage: $0 continent/country[/region] [ram|hd] [lang1,...,langN] [1...N]"
   echo "Example: $0 europe/germany/berlin ram en,de,fr,es 1"
   exit
