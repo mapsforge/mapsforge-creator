@@ -194,6 +194,7 @@ if [ "$MAP_CREATION" = "true" ]; then
   else
     mv "$WORK_PATH/$NAME.map" "$MAPS_PATH/$NAME.map"
   fi
+
 fi
 
 # ========== POI ==========
