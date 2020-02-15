@@ -2,12 +2,12 @@
 
 cd "$(dirname "$0")"
 
-../map-creator russia/central-fed-district ram en,de,fr,es
-../map-creator russia/crimean-fed-district ram en,de,fr,es
-../map-creator russia/far-eastern-fed-district hd en,de,fr,es
-../map-creator russia/north-caucasus-fed-district ram en,de,fr,es
-../map-creator russia/northwestern-fed-district ram en,de,fr,es
-../map-creator russia/siberian-fed-district ram en,de,fr,es
-../map-creator russia/south-fed-district ram en,de,fr,es
-../map-creator russia/ural-fed-district ram en,de,fr,es
-../map-creator russia/volga-fed-district ram en,de,fr,es
+../map-creator.sh russia/central-fed-district ram en,de,fr,es
+../map-creator.sh russia/crimean-fed-district ram en,de,fr,es
+../map-creator.sh russia/far-eastern-fed-district hd en,de,fr,es
+../map-creator.sh russia/north-caucasus-fed-district ram en,de,fr,es
+../map-creator.sh russia/northwestern-fed-district ram en,de,fr,es
+../map-creator.sh russia/siberian-fed-district ram en,de,fr,es
+../map-creator.sh russia/south-fed-district ram en,de,fr,es
+../map-creator.sh russia/ural-fed-district ram en,de,fr,es
+../map-creator.sh russia/volga-fed-district ram en,de,fr,es
