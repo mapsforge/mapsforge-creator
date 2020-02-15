@@ -28,8 +28,6 @@
 
 [ $COMMENT ] || COMMENT="Map data (c) OpenStreetMap contributors"
 
-[ $THREADS ] || THREADS="1"
-
 [ $DAYS ] || DAYS="30"
 
 [ $SKIP_MAP_CREATION ] || SKIP_MAP_CREATION="false"
@@ -43,9 +41,9 @@
 # be modified by users.
 # ======================================================================
 
-if [ $# -lt 1 ]; then
-  echo "Usage: $0 continent/country[/region] [ram|hd] [lang,...]"
-  echo "Example: $0 europe/germany/berlin ram en,de,fr,es"
+if [ $# != 1 ] && [ $# != 4 ]; then
+  echo "Usage: $0 continent/country[/region] [ram|hd] [lang1,...,langN] [1|...|N]"
+  echo "Example: $0 europe/germany/berlin ram en,de,fr,es 1"
   exit
 fi
 
@@ -163,10 +161,10 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
                  map-start-zoom=8 \
                  tag-values=$TAG_VALUES \
                  comment=\"$COMMENT\" \
-                 threads=$THREADS \
                  progress-logs=$PROGRESS_LOGS"
   [ $2 ] && CMD="$CMD type=$2"
   [ $3 ] && CMD="$CMD preferred-languages=$3"
+  [ $4 ] && CMD="$CMD threads=$4"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
   echo $CMD
   eval "$CMD" || exit 1
