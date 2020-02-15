@@ -43,8 +43,8 @@
 # be modified by users.
 # ======================================================================
 
-if [ $# -lt 2 ]; then
-  echo "Usage: $0 continent/country[/region] ram|hd [lang,...]"
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 continent/country[/region] [ram|hd] [lang,...]"
   echo "Example: $0 europe/germany/berlin ram en,de,fr,es"
   exit
 fi
@@ -158,7 +158,6 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
   CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf"
   [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
   CMD="$CMD --mw file=$WORK_PATH/$NAME.map \
-                 type=$2 \
                  bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
                  map-start-position=$LAT,$LON \
                  map-start-zoom=8 \
@@ -166,6 +165,7 @@ if [ "$SKIP_MAP_CREATION" != "true" ]; then
                  comment=\"$COMMENT\" \
                  threads=$THREADS \
                  progress-logs=$PROGRESS_LOGS"
+  [ $2 ] && CMD="$CMD type=$2"
   [ $3 ] && CMD="$CMD preferred-languages=$3"
   [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
   echo $CMD
