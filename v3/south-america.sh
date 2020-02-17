@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 
 ../map-creator.sh south-america/argentina ram
 ../map-creator.sh south-america/bolivia ram
-../map-creator.sh south-america/brazil ram
+../map-creator.sh south-america/brazil hd
 ../map-creator.sh south-america/chile ram
 ../map-creator.sh south-america/colombia ram
 ../map-creator.sh south-america/ecuador ram
