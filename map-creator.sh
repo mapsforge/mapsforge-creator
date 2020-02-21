@@ -102,10 +102,10 @@ fi
 # Download data
 
 echo "Downloading $1..."
-wget -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf || exit 1
-wget -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
+wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf || exit 1
+wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
 (cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
-wget -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
+wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
 
 # ========== Map ==========
 
@@ -119,7 +119,7 @@ if [ "$MAP_CREATION" = "true" ]; then
     echo "Downloading land polygons..."
     rm -rf "$DATA_PATH/land-polygons-split-4326"
     rm -f "$DATA_PATH/land-polygons-split-4326.zip"
-    wget -N -P "$DATA_PATH" https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip || exit 1
+    wget -nv -N -P "$DATA_PATH" https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip || exit 1
     unzip -oq "$DATA_PATH/land-polygons-split-4326.zip" -d "$DATA_PATH"
   fi
 
