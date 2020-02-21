@@ -15,10 +15,12 @@
 [ $GRAPH_CREATION ] || GRAPH_CREATION="false"
 
 [ $OSMOSIS_HOME ] || OSMOSIS_HOME="$HOME/programs/osmosis"
-[ $GRAPHHOPPER_HOME ] || GRAPHHOPPER_HOME="$HOME/programs/graphhopper"
 [ $DATA_PATH ] || DATA_PATH="$HOME/mapsforge/data"
 [ $MAPS_PATH ] || MAPS_PATH="$HOME/mapsforge/maps"
 [ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
+
+[ $GRAPHHOPPER_FILE ] || GRAPHHOPPER_FILE="$HOME/programs/graphhopper/graphhopper-web-0.13.0.jar"
+[ $GRAPHHOPPER_CONFIG ] || GRAPHHOPPER_CONFIG="$HOME/programs/graphhopper/config.yml"
 [ $GRAPHS_PATH ] || GRAPHS_PATH="$HOME/mapsforge/graphs"
 
 [ $DAYS ] || DAYS="30"
@@ -226,9 +228,9 @@ if [ "$GRAPH_CREATION" = "true" ]; then
   CMD="java $JAVACMD_OPTIONS \
             -Dgraphhopper.datareader.file=$WORK_PATH/$NAME-latest.osm.pbf \
             -Dgraphhopper.graph.location=$WORK_PATH/$NAME \
-            -jar $GRAPHHOPPER_HOME/graphhopper.jar \
+            -jar $GRAPHHOPPER_FILE \
             import \
-            $GRAPHHOPPER_HOME/config.yml"
+            $GRAPHHOPPER_CONFIG"
   echo $CMD
   eval "$CMD" || exit 1
 
