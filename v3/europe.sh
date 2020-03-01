@@ -14,6 +14,7 @@ cd "$(dirname "$0")"
 ../map-creator.sh europe/croatia ram
 ../map-creator.sh europe/cyprus ram
 ../map-creator.sh europe/czech-republic ram
+../map-creator.sh europe/dach hd
 ../map-creator.sh europe/denmark ram
 ../map-creator.sh europe/estonia ram
 ../map-creator.sh europe/faroe-islands ram
