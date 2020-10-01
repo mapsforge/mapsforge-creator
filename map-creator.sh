@@ -144,7 +144,7 @@ if [ "$MAP_CREATION" = "true" ]; then
   # Land
 
   ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP "$WORK_PATH/land.shp" "$DATA_PATH/land-polygons-split-4326/land_polygons.shp"
-  python shape2osm.py -l "$WORK_PATH/land" "$WORK_PATH/land.shp"
+  python3 shape2osm.py -l "$WORK_PATH/land" "$WORK_PATH/land.shp"
 
   # Sea
 

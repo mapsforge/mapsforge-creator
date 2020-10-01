@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 This script is designed to act as assistance in converting shapefiles
@@ -94,7 +94,7 @@ def fcode(data):
     }
 
     manmade = {
-	'43613': 'reservoir_covered' #Covered Reservoir
+        '43613': 'reservoir_covered' #Covered Reservoir
     }
 
     leisure = {
@@ -170,9 +170,9 @@ try:
 except ImportError:
     __doc__ += gdal_install 
     if DONT_RUN:
-        print __doc__
+        print(__doc__)
         sys.exit(2)
-    print "OGR Python Bindings not installed.\n%s" % gdal_install
+    print("OGR Python Bindings not installed.\n%s" % gdal_install)
     sys.exit(1)
 
 def close_file():
@@ -189,7 +189,7 @@ def start_new_file():
     if open_file:
         close_file()
     open_file = open("%s%s.osm" % (file_name, file_counter), "w")
-    print >>open_file, "<osm version='0.6'>"
+    print("<osm version='0.6'>", file=open_file)
 
 def clean_attr(val):
     """Internal. Hacky way to make attribute XML safe."""
@@ -204,16 +204,16 @@ def add_ring_nodes(ring):
     ids = []
     firstnode = id_counter
     if range(ring.GetPointCount() - 1) == 0 or ring.GetPointCount() == 0:
-        print >>sys.stderr, "Degenerate ring." 
+        print("Degenerate ring.", file=sys.stderr)
         return    
     for count in range(ring.GetPointCount() - 1):
         ids.append(id_counter)
-        print >>open_file, "<node timestamp='1969-12-31T23:59:59Z' changeset='-1' id='%s' version='1' lon='%s' lat='%s' />" % (id_counter, ring.GetX(count), ring.GetY(count))
+        print("<node timestamp='1969-12-31T23:59:59Z' changeset='-1' id='%s' version='1' lon='%s' lat='%s' />" % (id_counter, ring.GetX(count), ring.GetY(count)), file=open_file)
         id_counter += 1
         if (count > 0) and ((count % (Max_Waylength - 1)) == 0):
             ringways.append(ids)
             ids = []
-	    ids.append(id_counter - 1)
+            ids.append(id_counter - 1)
     ids.append(firstnode)
     ringways.append(ids)
     return ringways    
@@ -225,27 +225,27 @@ def add_ring_way(ring):
     ringways = []
     for count in range(ring.GetPointCount() - 1):
         ids.append(id_counter)
-        print >>open_file, "<node timestamp='1969-12-31T23:59:59Z' changeset='-1' version='1' id='%s' lon='%s' lat='%s' />" % (id_counter, ring.GetX(count), ring.GetY(count))
+        print("<node timestamp='1969-12-31T23:59:59Z' changeset='-1' version='1' id='%s' lon='%s' lat='%s' />" % (id_counter, ring.GetX(count), ring.GetY(count)), file=open_file)
         id_counter += 1
     if len(ids) == 0:
         return None
-    print >>open_file, "<way timestamp='1969-12-31T23:59:59Z' changeset='-1' id='%s' version='1'>" % id_counter
+    print("<way timestamp='1969-12-31T23:59:59Z' changeset='-1' id='%s' version='1'>" % id_counter, file=open_file)
     way_id = id_counter
     id_counter += 1
     count = 0
     for i in ids:
-        print >>open_file, "<nd ref='%s' />" % i
+        print("<nd ref='%s' />" % i, file=open_file)
         count += 1
         if count >= Max_Waylength - 1:
             count = 0
-            print >>open_file, "</way>"
+            print("</way>", file=open_file)
             ringways.append(way_id)
-            print >>open_file, "<way timestamp='1969-12-31T23:59:59Z' changeset='-1'id='%s' version='1'>" % id_counter
+            print("<way timestamp='1969-12-31T23:59:59Z' changeset='-1'id='%s' version='1'>" % id_counter, file=open_file)
             way_id = id_counter
             id_counter += 1
-            print >>open_file, "<nd ref='%s' />" % i
-    print >>open_file, "<nd ref='%s' />" % ids[0]
-    print >>open_file, "</way>"
+            print("<nd ref='%s' />" % i, file=open_file)
+    print("<nd ref='%s' />" % ids[0], file=open_file)
+    print("</way>", file=open_file)
     ringways.append(way_id)
 
     return ringways
@@ -287,8 +287,8 @@ def run(filename, slice_count=1, obj_count=100000000, output_location=None, no_s
 
     seen = {}
 
-    print "Running %s slices with %s base filename against shapefile %s" % (
-            slice_count, file_name, filename)
+    print("Running %s slices with %s base filename against shapefile %s" % (
+            slice_count, file_name, filename))
 
     for i in range(slice_count): 
 
@@ -318,23 +318,23 @@ def run(filename, slice_count=1, obj_count=100000000, output_location=None, no_s
 #                break
             
             outerways = []
-	    innerways = []
+            innerways = []
         
             geom = f.GetGeometryRef()
             ring = geom.GetGeometryRef(0)
 
             objcount = ring.GetPointCount()
             for i in range(1, geom.GetGeometryCount()):
-	        objcount += geom.GetGeometryRef(i).GetPointCount()
-	        objcount += 1
+                objcount += geom.GetGeometryRef(i).GetPointCount()
+                objcount += 1
 
             if (obj_counter - last_obj_split + objcount) > max_objs_per_file:
-                print "Splitting file with %s objs" % (obj_counter - last_obj_split)
+                print("Splitting file with %s objs" % (obj_counter - last_obj_split))
                 start_new_file()
                 last_obj_split = obj_counter
 
             if objcount > max_objs_per_file:
-                print "Warning: a feature contains %i objects which is more than the %i object limit.  It will be placed in a file by itself." % (objcount, max_objs_per_file)
+                print("Warning: a feature contains %i objects which is more than the %i object limit.  It will be placed in a file by itself." % (objcount, max_objs_per_file))
 
             ringways = add_ring_nodes(ring)
             if not ringways or len(ringways) == 0:
@@ -344,11 +344,11 @@ def run(filename, slice_count=1, obj_count=100000000, output_location=None, no_s
             for count in range( len(ringways) ):
                 ids = ringways[count]
                 if ids and len(ids) > 1: 
-                    print >>open_file, "<way timestamp='1969-12-31T23:59:59Z' changeset='-1' id='%s' version='1'>" % id_counter
+                    print("<way timestamp='1969-12-31T23:59:59Z' changeset='-1' id='%s' version='1'>" % id_counter, file=open_file)
                     outerways.append(id_counter) 
                     id_counter += 1
                     for i in ids:
-                        print >>open_file, "<nd ref='%s' />" % i
+                        print("<nd ref='%s' />" % i, file=open_file)
 #Write out the fields for the way
                     field_count = f.GetFieldCount()
                     fields  = {}
@@ -356,7 +356,7 @@ def run(filename, slice_count=1, obj_count=100000000, output_location=None, no_s
                         value = f.GetFieldAsString(field)
                         name = f.GetFieldDefnRef(field).GetName()
                         if namespace and name and value and name not in boring_tags:
-                            print >>open_file, "<tag k='%s:%s' v='%s' />" % (namespace, name, clean_attr(value))
+                            print("<tag k='%s:%s' v='%s' />" % (namespace, name, clean_attr(value)), file=open_file)
                         fields[name.lower()] = value
                     tags={}
 #Perform the specified field mappting
@@ -371,24 +371,24 @@ def run(filename, slice_count=1, obj_count=100000000, output_location=None, no_s
                                 tags[map_value] = fields[tag_name].title()
                     for key, value in tags.items():
                         if key and value:
-                            print >>open_file, "<tag k='%s' v='%s' />" % (key, clean_attr(value))
+                            print("<tag k='%s' v='%s' />" % (key, clean_attr(value)), file=open_file)
 #Write fixed tabs                    
                     for name, value in fixed_tags.items():
-                        print >>open_file, "<tag k='%s' v='%s' />" % (name, clean_attr(value))
-                    print >>open_file, "</way>"
+                        print("<tag k='%s' v='%s' />" % (name, clean_attr(value)), file=open_file)
+                    print("</way>", file=open_file)
             if (geom.GetGeometryCount() > 1) or (len(ringways) > 1):
 #add the inner ways
                 for i in range(1, geom.GetGeometryCount()):
                     ringways = add_ring_way(geom.GetGeometryRef(i)) 
                     for way in ringways:
                         innerways.append(way)
-                print >>open_file, "<relation timestamp='1969-12-31T23:59:59Z' changeset='-1' id='%s' version='1' ><tag k='type' v='multipolygon' />" % id_counter
+                print("<relation timestamp='1969-12-31T23:59:59Z' changeset='-1' id='%s' version='1' ><tag k='type' v='multipolygon' />" % id_counter, file=open_file)
                 id_counter += 1
                 for way in outerways:
-                    print >>open_file, '<member type="way" ref="%s" role="outer" />' % way
+                    print('<member type="way" ref="%s" role="outer" />' % way, file=open_file)
                 for way in innerways:
-                    print >>open_file, '<member type="way" ref="%s" role="inner" />' % way 
-                print >>open_file, "</relation>"    
+                    print('<member type="way" ref="%s" role="inner" />' % way, file=open_file)
+                print("</relation>", file=open_file)
                 
             counter += 1
             f = l.GetNextFeature()
@@ -398,7 +398,7 @@ def run(filename, slice_count=1, obj_count=100000000, output_location=None, no_s
 
 if __name__ == "__main__":
     if DONT_RUN:
-        print __doc__
+        print(__doc__)
         sys.exit(2)
     
     from optparse import OptionParser
@@ -420,7 +420,7 @@ if __name__ == "__main__":
     (options, args) = parse.parse_args()
     
     if not len(args):
-        print "No shapefile name given!"
+        print("No shapefile name given!")
         parse.print_help()
         sys.exit(3)
 
@@ -430,5 +430,5 @@ if __name__ == "__main__":
     
     try:
         run(args[0], **kw)   
-    except AppError, E:
-        print "An error occurred: \n%s" % E  
+    except AppError as E:
+        print("An error occurred: \n%s" % E)
