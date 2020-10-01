@@ -94,7 +94,7 @@ def fcode(data):
     }
 
     manmade = {
-	'43613': 'reservoir_covered' #Covered Reservoir
+        '43613': 'reservoir_covered' #Covered Reservoir
     }
 
     leisure = {
@@ -213,7 +213,7 @@ def add_ring_nodes(ring):
         if (count > 0) and ((count % (Max_Waylength - 1)) == 0):
             ringways.append(ids)
             ids = []
-	    ids.append(id_counter - 1)
+            ids.append(id_counter - 1)
     ids.append(firstnode)
     ringways.append(ids)
     return ringways    
@@ -318,15 +318,15 @@ def run(filename, slice_count=1, obj_count=100000000, output_location=None, no_s
 #                break
             
             outerways = []
-	    innerways = []
+            innerways = []
         
             geom = f.GetGeometryRef()
             ring = geom.GetGeometryRef(0)
 
             objcount = ring.GetPointCount()
             for i in range(1, geom.GetGeometryCount()):
-	        objcount += geom.GetGeometryRef(i).GetPointCount()
-	        objcount += 1
+                objcount += geom.GetGeometryRef(i).GetPointCount()
+                objcount += 1
 
             if (obj_counter - last_obj_split + objcount) > max_objs_per_file:
                 print "Splitting file with %s objs" % (obj_counter - last_obj_split)
