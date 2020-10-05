@@ -19,7 +19,7 @@
 [ $MAPS_PATH ] || MAPS_PATH="$HOME/mapsforge/maps"
 [ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
 
-[ $GRAPHHOPPER_FILE ] || GRAPHHOPPER_FILE="$HOME/programs/graphhopper/graphhopper-web-0.13.0.jar"
+[ $GRAPHHOPPER_FILE ] || GRAPHHOPPER_FILE="$HOME/programs/graphhopper/graphhopper-web-1.0.jar"
 [ $GRAPHHOPPER_CONFIG ] || GRAPHHOPPER_CONFIG="$HOME/programs/graphhopper/config.yml"
 [ $GRAPHS_PATH ] || GRAPHS_PATH="$HOME/mapsforge/graphs"
 
@@ -226,8 +226,8 @@ if [ "$GRAPH_CREATION" = "true" ]; then
   # Graph writer
 
   CMD="java $JAVACMD_OPTIONS \
-            -Dgraphhopper.datareader.file=$WORK_PATH/$NAME-latest.osm.pbf \
-            -Dgraphhopper.graph.location=$WORK_PATH/$NAME \
+            -Ddw.graphhopper.datareader.file=$WORK_PATH/$NAME-latest.osm.pbf \
+            -Ddw.graphhopper.graph.location=$WORK_PATH/$NAME \
             -jar $GRAPHHOPPER_FILE \
             import \
             $GRAPHHOPPER_CONFIG"
