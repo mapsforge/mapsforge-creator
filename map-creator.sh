@@ -35,8 +35,8 @@
 # ======================================================================
 
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 continent/country[/region] [ram|hd] [lang1,...,langN] [1...N]"
-  echo "Example: $0 europe/germany/berlin ram en,de,fr,es 1"
+  echo "Usage: $0 continent/country[/region] [ram|hd] [lang1,...,langN] [1...N] [poly_file]"
+  echo "Example: $0 europe/germany/berlin ram en,de,fr,es 1 my.poly"
   exit
 fi
 
@@ -109,6 +109,38 @@ wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 
 (cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
 wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
 
+# Poly file to trim
+[ $5 ] && POLY_FILE="$5" || POLY_FILE="$WORK_PATH/$NAME.poly"
+echo "Poly file is " $POLY_FILE
+
+# Bounds
+
+BBOX=$(perl poly2bb.pl "$POLY_FILE")
+BBOX=(${BBOX//,/ })
+BOTTOM=${BBOX[0]}
+LEFT=${BBOX[1]}
+TOP=${BBOX[2]}
+RIGHT=${BBOX[3]}
+
+# Start position
+
+CENTER=$(perl poly2center.pl "$POLY_FILE")
+CENTER=(${CENTER//,/ })
+LAT=${CENTER[0]}
+LON=${CENTER[1]}
+
+# extract only bounding box
+[ $5 ] && BOUNDED_PBF="$NAME-bounded.pbf" || BOUNDEF_PBF="$NAME-latest.osm.pbf"
+echo $BOUNDED_PBF
+
+if [ $5 ]; then
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
+                                 --bb left=$LEFT right=$RIGHT top=$TOP bottom=$BOTTOM completeWays=yes \
+                                 --wb file=$WORK_PATH/$BOUNDED_PBF"
+  echo $CMD
+  eval "$CMD" || exit 1
+fi
+
 # ========== Map ==========
 
 if [ "$MAP_CREATION" = "true" ]; then
@@ -125,26 +157,21 @@ if [ "$MAP_CREATION" = "true" ]; then
     unzip -oq "$DATA_PATH/land-polygons-split-4326.zip" -d "$DATA_PATH"
   fi
 
-  # Bounds
-
-  BBOX=$(perl poly2bb.pl "$WORK_PATH/$NAME.poly")
-  BBOX=(${BBOX//,/ })
-  BOTTOM=${BBOX[0]}
-  LEFT=${BBOX[1]}
-  TOP=${BBOX[2]}
-  RIGHT=${BBOX[3]}
-
-  # Start position
-
-  CENTER=$(perl poly2center.pl "$WORK_PATH/$NAME.poly")
-  CENTER=(${CENTER//,/ })
-  LAT=${CENTER[0]}
-  LON=${CENTER[1]}
-
   # Land
 
-  ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP "$WORK_PATH/land.shp" "$DATA_PATH/land-polygons-split-4326/land_polygons.shp"
-  python3 shape2osm.py -l "$WORK_PATH/land" "$WORK_PATH/land.shp"
+  CMD="ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP $WORK_PATH/land.shp $DATA_PATH/land-polygons-split-4326/land_polygons.shp"
+  echo $CMD
+  eval "$CMD" || exit 1
+
+  if [ $5 ]; then
+    CMD="python3 multipolygon2polygons.py $WORK_PATH/land.shp $WORK_PATH/land_m2p.shp"
+    echo $CMD
+    eval "$CMD" || exit 1
+  fi
+
+  CMD="python3 shape2osm.py -l $WORK_PATH/land $WORK_PATH/land_m2p.shp"
+  echo $CMD
+  eval "$CMD" || exit 1
 
   # Sea
 
@@ -156,7 +183,7 @@ if [ "$MAP_CREATION" = "true" ]; then
 
   # Merge
 
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$BOUNDED_PBF \
                                  --rx file=$WORK_PATH/sea.osm --s --m"
   for f in $WORK_PATH/land*.osm; do
     CMD="$CMD --rx file=$f --s --m"
@@ -205,7 +232,7 @@ if [ "$POI_CREATION" = "true" ]; then
 
   # POI writer
 
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$BOUNDED_PBF \
                                  --pw file=$WORK_PATH/$NAME.poi \
                                       comment=\"$COMMENT\" \
                                       progress-logs=$PROGRESS_LOGS"
@@ -226,7 +253,7 @@ if [ "$GRAPH_CREATION" = "true" ]; then
   # Graph writer
 
   CMD="java $JAVACMD_OPTIONS \
-            -Ddw.graphhopper.datareader.file=$WORK_PATH/$NAME-latest.osm.pbf \
+            -Ddw.graphhopper.datareader.file=$WORK_PATH/$BOUNDED_PBF \
             -Ddw.graphhopper.graph.location=$WORK_PATH/$NAME \
             -jar $GRAPHHOPPER_FILE \
             import \
