@@ -39,7 +39,7 @@ cd "$(dirname "$0")"
 ../map-creator.sh europe/monaco ram en,de,fr,es
 ../map-creator.sh europe/montenegro ram en,de,fr,es
 ../map-creator.sh europe/netherlands hd en,de,fr,es
-../map-creator.sh europe/norway ram en,de,fr,es
+../map-creator.sh europe/norway hd en,de,fr,es
 ../map-creator.sh europe/poland hd en,de,fr,es
 ../map-creator.sh europe/portugal ram en,de,fr,es
 ../map-creator.sh europe/romania ram en,de,fr,es
