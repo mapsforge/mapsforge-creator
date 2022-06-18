@@ -9,6 +9,7 @@ cd "$(dirname "$0")"
 ../map-creator.sh asia/bhutan ram
 ../map-creator.sh asia/cambodia ram
 ../map-creator.sh asia/china ram
+../map-creator.sh asia/east-timor ram
 ../map-creator.sh asia/gcc-states ram
 ../map-creator.sh asia/india ram
 ../map-creator.sh asia/indonesia ram

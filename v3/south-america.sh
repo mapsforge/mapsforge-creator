@@ -8,6 +8,7 @@ cd "$(dirname "$0")"
 ../map-creator.sh south-america/chile ram
 ../map-creator.sh south-america/colombia ram
 ../map-creator.sh south-america/ecuador ram
+../map-creator.sh south-america/guyana ram
 ../map-creator.sh south-america/paraguay ram
 ../map-creator.sh south-america/peru ram
 ../map-creator.sh south-america/suriname ram

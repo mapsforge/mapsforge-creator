@@ -23,6 +23,7 @@ cd "$(dirname "$0")"
 ../map-creator.sh europe/germany hd en,de,fr,es
 ../map-creator.sh europe/great-britain ram en,de,fr,es
 ../map-creator.sh europe/greece ram en,de,fr,es
+../map-creator.sh europe/guernsey-jersey ram en,de,fr,es
 ../map-creator.sh europe/hungary ram en,de,fr,es
 ../map-creator.sh europe/iceland ram en,de,fr,es
 ../map-creator.sh europe/ireland-and-northern-ireland ram en,de,fr,es

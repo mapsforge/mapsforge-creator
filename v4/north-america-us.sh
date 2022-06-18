@@ -47,6 +47,7 @@ cd "$(dirname "$0")"
 ../map-creator.sh north-america/us/south-dakota ram en,de,fr,es
 ../map-creator.sh north-america/us/tennessee ram en,de,fr,es
 ../map-creator.sh north-america/us/texas ram en,de,fr,es
+../map-creator.sh north-america/us/us-virgin-islands ram en,de,fr,es
 ../map-creator.sh north-america/us/utah ram en,de,fr,es
 ../map-creator.sh north-america/us/vermont ram en,de,fr,es
 ../map-creator.sh north-america/us/virginia ram en,de,fr,es
