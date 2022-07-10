@@ -1,3 +1,5 @@
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](http://www.gnu.org/licenses/lgpl-3.0)
+
 # mapsforge-creator
 
 Automatic generation for Mapsforge maps / pois (based on our [guide](https://github.com/mapsforge/mapsforge/blob/master/docs/MapCreation.md)) and GraphHopper graphs.
