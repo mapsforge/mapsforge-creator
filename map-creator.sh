@@ -12,20 +12,21 @@
 
 [ $MAP_CREATION ] || MAP_CREATION="true"
 [ $POI_CREATION ] || POI_CREATION="true"
-[ $GRAPH_CREATION ] || GRAPH_CREATION="false"
+[ $GRAPH_CREATION ] || GRAPH_CREATION="true"
 
-[ $OSMOSIS_HOME ] || OSMOSIS_HOME="$HOME/programs/osmosis"
+[ $OSMOSIS_HOME ] || OSMOSIS_HOME="osmosis"
 [ $DATA_PATH ] || DATA_PATH="$HOME/mapsforge/data"
 [ $MAPS_PATH ] || MAPS_PATH="$HOME/mapsforge/maps"
 [ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
 
-[ $GRAPHHOPPER_FILE ] || GRAPHHOPPER_FILE="$HOME/programs/graphhopper/graphhopper-web-1.0.jar"
-[ $GRAPHHOPPER_CONFIG ] || GRAPHHOPPER_CONFIG="$HOME/programs/graphhopper/config.yml"
+[ $GRAPHHOPPER_FILE ] || GRAPHHOPPER_FILE="graphhopper-web-1.0.jar"
+[ $GRAPHHOPPER_CONFIG ] || GRAPHHOPPER_CONFIG="config.yml"
 [ $GRAPHS_PATH ] || GRAPHS_PATH="$HOME/mapsforge/graphs"
 
 [ $DAYS ] || DAYS="30"
 
-[ $TAG_VALUES ] || TAG_VALUES="false"
+[ $MAP_TRANSFORM_FILE ] || MAP_TRANSFORM_FILE="tag-transform.xml"
+[ $TAG_VALUES ] || TAG_VALUES="true"
 [ $COMMENT ] || COMMENT="Map data (c) OpenStreetMap contributors"
 [ $PROGRESS_LOGS ] || PROGRESS_LOGS="true"
 
@@ -167,15 +168,15 @@ if [ "$MAP_CREATION" = "true" ]; then
 
   # Map writer
 
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf"
-  [ $MAP_TRANSFORM_FILE ] && CMD="$CMD --tt file=$MAP_TRANSFORM_FILE"
-  CMD="$CMD --mw file=$WORK_PATH/$NAME.map \
-                 bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
-                 map-start-position=$LAT,$LON \
-                 map-start-zoom=8 \
-                 tag-values=$TAG_VALUES \
-                 comment=\"$COMMENT\" \
-                 progress-logs=$PROGRESS_LOGS"
+  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf \
+                                 --tt file=$MAP_TRANSFORM_FILE \
+                                 --mw file=$WORK_PATH/$NAME.map \
+                                      bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
+                                      map-start-position=$LAT,$LON \
+                                      map-start-zoom=8 \
+                                      tag-values=$TAG_VALUES \
+                                      comment=\"$COMMENT\" \
+                                      progress-logs=$PROGRESS_LOGS"
   [ $2 ] && CMD="$CMD type=$2"
   [ $3 ] && CMD="$CMD preferred-languages=$3"
   [ $4 ] && CMD="$CMD threads=$4"
