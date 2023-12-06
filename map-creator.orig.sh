@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Automatic generation for:
 # - Mapsforge maps
@@ -12,7 +12,7 @@
 
 [ $MAP_CREATION ] || MAP_CREATION="true"
 [ $POI_CREATION ] || POI_CREATION="true"
-[ $GRAPH_CREATION ] || GRAPH_CREATION="false"
+[ $GRAPH_CREATION ] || GRAPH_CREATION="true"
 
 [ $OSMOSIS_HOME ] || OSMOSIS_HOME="/usr/bin"
 [ $DATA_PATH ] || DATA_PATH="$HOME/mapsforge/data"
@@ -23,10 +23,9 @@
 [ $GRAPHHOPPER_CONFIG ] || GRAPHHOPPER_CONFIG="config.yml"
 [ $GRAPHS_PATH ] || GRAPHS_PATH="$HOME/mapsforge/graphs"
 
-[ $DAYS ] || DAYS="1"
+[ $DAYS ] || DAYS="30"
 
 [ $MAP_TRANSFORM_FILE ] || MAP_TRANSFORM_FILE="tag-transform.xml"
-[ $MAP_TAG_CONF_FILE ] || MAP_TAG_CONF_FILE="tagmapping-urban.xml"
 [ $TAG_VALUES ] || TAG_VALUES="true"
 [ $COMMENT ] || COMMENT="Map data (c) OpenStreetMap contributors"
 [ $PROGRESS_LOGS ] || PROGRESS_LOGS="true"
@@ -41,9 +40,6 @@ if [ $# -lt 1 ]; then
   echo "Example: $0 europe/germany/berlin ram en,de,fr,es 1"
   exit
 fi
-
-read -p "Dou you want to download and merge 1 sec or 3 sec contour lines from https://osmscout.karry.cz/countours/phyghtmap-osm-contours/  (y/n)? : " CONTOUR
-CONTOUR=${CONTOUR,,}    # tolower
 
 cd "$(dirname "$0")"
 
@@ -91,8 +87,8 @@ fi
 
 # Pre-process
 
-#rm -rf "$WORK_PATH"
-#mkdir -p "$WORK_PATH"
+rm -rf "$WORK_PATH"
+mkdir -p "$WORK_PATH"
 
 if [ "$MAP_CREATION" = "true" ]; then
   mkdir -p "$MAPS_PATH"
@@ -107,38 +103,12 @@ if [ "$GRAPH_CREATION" = "true" ]; then
 fi
 
 # Download data
+
 echo "Downloading $1..."
-wget -v -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf || exit 1 
-wget -v -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
-#(cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
-wget -v -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
-if [[ "$CONTOUR" =~ ^(yes|y)$ ]]; then
-  if [ $(awk -F"/" '{print NF-1}' <<< $1) = 1 ]; then
-	CONTOURFILE="https://osmscout.karry.cz/countours/phyghtmap-osm-contours/$1-contours-1sec.osm.pbf"
-   else
-        CONTOURFILE="https://osmscout.karry.cz/countours/phyghtmap-osm-contours/$(dirname $1)-contours-1sec.osm.pbf" 
-  fi
-  
-  echo $CONTOURFILE
-  #Check if exists the file
-  if [[ 'wget -S --spider $CONTOURFILE 2>&1 | grep "HTTP/1.1 200 OK"' ]]; 
-  then   
-  	wget -v -P "$WORK_PATH" "$CONTOURFILE" -O "$WORK_PATH/contours.osm.pbf" || exit 1 
-  	#mv $WORK_PATH/$NAME-latest.osm.pbf $WORK_PATH/$NAME.osm.pbf
-  	$OSMOSIS_HOME/osmosis --rb $WORK_PATH/$NAME-latest.osm.pbf --rb $WORK_PATH/contours.osm.pbf --merge --wb $WORK_PATH/$NAME-merged.osm.pbf  
-  else
-  	CONTOURFILE="https://osmscout.karry.cz/countours/phyghtmap-osm-contours/$1-contours-3sec.osm.pbf"
-  	if [[ 'wget -S --spider $CONTOURFILE 2>&1 | grep "HTTP/1.1 200 OK"' ]]; 
-  	then   
-  		wget -v -N -P "$WORK_PATH" "$CONTOURFILE" || exit 1 
-  		#mv $WORK_PATH/$NAME-latest.osm.pbf $WORK_PATH/$NAME.osm.pbf
-  		$OSMOSIS_HOME/osmosis --rb $WORK_PATH/$NAME-latest.osm.pbf --rb $WORK_PATH/$1-contours-3sec.osm.pbf --merge --wb $WORK_PATH/$NAME-merged.osm.pbf 
-  	else 
-  		echo "No contour file found"
-  	fi
-  fi
-  
-fi
+wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf || exit 1
+wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 || exit 1
+(cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
+wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
 
 # ========== Map ==========
 
@@ -164,7 +134,7 @@ if [ "$MAP_CREATION" = "true" ]; then
   LEFT=${BBOX[1]}
   TOP=${BBOX[2]}
   RIGHT=${BBOX[3]}
-  echo "Left : $LEFT, Top : $TOP"
+
   # Start position
 
   CENTER=$(perl poly2center.pl "$WORK_PATH/$NAME.poly")
@@ -187,10 +157,9 @@ if [ "$MAP_CREATION" = "true" ]; then
 
   # Merge
 
-  CMD="$OSMOSIS_HOME/osmosis --rb file=$WORK_PATH/$NAME-merged.osm.pbf \
+  CMD="$OSMOSIS_HOME/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
                                  --rx file=$WORK_PATH/sea.osm --s --m"
   for f in $WORK_PATH/land*.osm; do
-    echo "f vale $f"
     CMD="$CMD --rx file=$f --s --m"
   done
   CMD="$CMD --wb file=$WORK_PATH/merge.pbf omitmetadata=true"
@@ -237,7 +206,7 @@ if [ "$POI_CREATION" = "true" ]; then
 
   # POI writer
 
-  CMD="$OSMOSIS_HOME/osmosis --rb file=$WORK_PATH/$NAME-merged.osm.pbf \
+  CMD="$OSMOSIS_HOME/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
                                  --pw file=$WORK_PATH/$NAME.poi \
                                       comment=\"$COMMENT\" \
                                       progress-logs=$PROGRESS_LOGS"
@@ -258,7 +227,7 @@ if [ "$GRAPH_CREATION" = "true" ]; then
   # Graph writer
 
   CMD="java $JAVACMD_OPTIONS \
-            -Ddw.graphhopper.datareader.file=$WORK_PATH/$NAME-merged.osm.pbf \
+            -Ddw.graphhopper.datareader.file=$WORK_PATH/$NAME-latest.osm.pbf \
             -Ddw.graphhopper.graph.location=$WORK_PATH/$NAME \
             -jar $GRAPHHOPPER_FILE \
             import \
@@ -274,4 +243,4 @@ fi
 
 # Post-process
 
-#rm -rf "$WORK_PATH"
+rm -rf "$WORK_PATH"

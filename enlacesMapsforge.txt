@@ -1,0 +1,217 @@
+Descarga de datos OSM por zonas
+http://download.geofabrik.de/
+
+Instrucciones foro
+https://www.openandromaps.org/oam-forums/topic/how-to-create-your-own-maps
+
+Automatic generation for Mapsforge maps / pois and GraphHopper graphs.
+https://github.com/mapsforge/mapsforge-creator
+
+Curvas de nivel
+https://osmscout.karry.cz/countours/phyghtmap-osm-contours/
+
+Mapas precompilados sin curvas de nivel
+https://download.mapsforge.org/
+
+Instrucciones en un foro
+
+#test of merging osm + srtm and render in mapsforge using a small aera in LowerAustria along the river Danube
+#Merging Srtm + osm: Thanks to user Fireball2 at http://forum.openstreetmap.org/viewtopic.php?id=5359
+
+#Contours with PHYGHTMAP (output is in version 0.6)
+C:\Python27\Scripts\phyghtmap -a 15.0:48.0:16.5:48.5 -o D:\maps\Mapsforge\at_test\srtm6 --source=view1,view3,srtm3 -s 10 -c 100,50 --start-node-id=2000000000 --start-way-id=1000000000 --write-timestamp --max-nodes-per-tile=0
+
+#cut out osm-data from austria.osm
+osmosis --rx D:\maps\OSM_Data\austria.osm --tee 1 --bounding-box top="48.50" bottom="48.00" left="15.00" right="16.50" --wx D:\maps\Mapsforge\at_test\at_test.osm
+
+#merge srtm + osm
+osmosis --rx D:\maps\Mapsforge\at_test\at_test.osm --sort-0.6 --rx D:\maps\Mapsforge\at_test\srtm6.osm --sort-0.6 --merge --wx D:\maps\Mapsforge\at_test\at_test_srtm.osm
+
+#mapsforge output (use mapwriter plugin WITH dependencies)
+osmosis --rx file=D:\maps\Mapsforge\at_test\at_test_srtm.osm --mw file=D:\maps\Mapsforge\at_test\at_test_srtm.map bbox=48.0,15.0,48.5,16.5 type=hd tag-conf-file=D:\maps\Mapsforge\at_test\tag-mapping-srtm.xml
+
+
+#Custom tag-mapping-srtm.xml:
+#added lines to tag-mapping.xml:
+
+   <!-- Elevation TAGS -->
+   <ways>
+      <osm-tag key="contour_ext" value="elevation_minor" zoom-appear="13" />
+      <osm-tag key="contour_ext" value="elevation_medium" zoom-appear="12" />
+      <osm-tag key="contour_ext" value="elevation_major" zoom-appear="12" />
+      <osm-tag key="ele" value="100" zoom-appear="14" />
+      <osm-tag key="ele" value="200" zoom-appear="14" />
+      <osm-tag key="ele" value="300" zoom-appear="14" />
+      <osm-tag key="ele" value="400" zoom-appear="14" />
+      <osm-tag key="ele" value="500" zoom-appear="14" />
+      <osm-tag key="ele" value="600" zoom-appear="14" />
+      <osm-tag key="ele" value="700" zoom-appear="14" />
+      <osm-tag key="ele" value="800" zoom-appear="14" />
+      <osm-tag key="ele" value="900" zoom-appear="14" />
+      <osm-tag key="ele" value="1000" zoom-appear="14" />
+      <osm-tag key="ele" value="1100" zoom-appear="14" />
+      <osm-tag key="ele" value="1200" zoom-appear="14" />
+      <osm-tag key="ele" value="1300" zoom-appear="14" />
+      <osm-tag key="ele" value="1400" zoom-appear="14" />
+      <osm-tag key="ele" value="1500" zoom-appear="14" />
+      <osm-tag key="ele" value="1600" zoom-appear="14" />
+      <osm-tag key="ele" value="1700" zoom-appear="14" />
+      <osm-tag key="ele" value="1800" zoom-appear="14" />
+      <osm-tag key="ele" value="1900" zoom-appear="14" />
+      <osm-tag key="ele" value="2000" zoom-appear="14" />
+      <osm-tag key="ele" value="2100" zoom-appear="14" />
+      <osm-tag key="ele" value="2200" zoom-appear="14" />
+      <osm-tag key="ele" value="2300" zoom-appear="14" />
+      <osm-tag key="ele" value="2400" zoom-appear="14" />
+      <osm-tag key="ele" value="2500" zoom-appear="14" />
+      <osm-tag key="ele" value="2600" zoom-appear="14" />
+      <osm-tag key="ele" value="2700" zoom-appear="14" />
+      <osm-tag key="ele" value="2800" zoom-appear="14" />
+      <osm-tag key="ele" value="2900" zoom-appear="14" />
+      <osm-tag key="ele" value="3000" zoom-appear="14" />
+      <osm-tag key="ele" value="3100" zoom-appear="14" />
+      <osm-tag key="ele" value="3200" zoom-appear="14" />
+      <osm-tag key="ele" value="3300" zoom-appear="14" />
+      <osm-tag key="ele" value="3400" zoom-appear="14" />
+      <osm-tag key="ele" value="3500" zoom-appear="14" />
+      <osm-tag key="ele" value="3600" zoom-appear="14" />
+      <osm-tag key="ele" value="3700" zoom-appear="14" />
+      <osm-tag key="ele" value="3800" zoom-appear="14" />
+      <osm-tag key="ele" value="3900" zoom-appear="14" />
+      <osm-tag key="ele" value="4000" zoom-appear="14" />
+      <osm-tag key="ele" value="4100" zoom-appear="14" />
+      <osm-tag key="ele" value="4200" zoom-appear="14" />
+      <osm-tag key="ele" value="4300" zoom-appear="14" />
+      <osm-tag key="ele" value="4400" zoom-appear="14" />
+      <osm-tag key="ele" value="4500" zoom-appear="14" />
+      <osm-tag key="ele" value="4600" zoom-appear="14" />
+      <osm-tag key="ele" value="4700" zoom-appear="14" />
+      <osm-tag key="ele" value="4800" zoom-appear="14" />
+      <osm-tag key="ele" value="4900" zoom-appear="14" />
+      <osm-tag key="ele" value="5000" zoom-appear="14" />
+   </ways>   
+
+
+
+#Custom [render].xml
+#added lines just bevore the waterways:
+
+                <!-- contour lines optimized for low-res displays interval = 10,(50/100)(Sony Xperia active)-->
+            <!-- Contour lines below level 12 do not make sense because of the optimization prozessof the map-creator -->
+            <!-- Level 12 + 13 do not render nice, there seems to be a bug in the renderer -->
+            <!-- contour lines level 12 -->
+            <rule e="way" k="contour_ext" v="*" zoom-min="12" zoom-max="12">
+               <rule e="way" k="contour_ext" v="elevation_medium|elevation_major">   
+                  <line stroke="#0a630c" stroke-width="1.1" stroke-dasharray="1,2"/>
+               </rule>
+            </rule>
+            <!-- contour lines level 13 -->
+            <rule e="way" k="contour_ext" v="*" zoom-min="13" zoom-max="13">
+               <rule e="way" k="contour_ext" v="elevation_minor">   
+                  <line stroke="#0a630c" stroke-width="0.65" stroke-dasharray="1,2"/>
+               </rule>
+               <rule e="way" k="contour_ext" v="elevation_medium|elevation_major">   
+                  <line stroke="#0a630c" stroke-width="0.95" stroke-dasharray="1,3"/>
+               </rule>
+            </rule>
+            <!-- contour lines level 14-->
+            <rule e="way" k="contour_ext" v="*" zoom-min="14" zoom-max="14">
+               <rule e="way" k="contour_ext" v="elevation_minor">   
+                  <line stroke="#0a630c" stroke-width="0.45" stroke-dasharray="1,4"/>
+               </rule>
+               <rule e="way" k="contour_ext" v="elevation_medium|elevation_major">   
+                  <line stroke="#0a630c" stroke-width="0.8" stroke-dasharray="1,4"/>
+               </rule>   
+            </rule>
+            <!-- contour lines level 15-->
+            <rule e="way" k="contour_ext" v="*" zoom-min="15" zoom-max="15">
+               <rule e="way" k="contour_ext" v="elevation_minor" zoom-max="15">   
+                  <line stroke="#0a630c" stroke-width="0.35" stroke-dasharray="1,5"/>
+               </rule>
+               <rule e="way" k="contour_ext" v="elevation_medium|elevation_major">   
+                  <line stroke="#0a630c" stroke-width="0.65" stroke-dasharray="1,5"/>
+                        <rule e="way" k="*" v="*">
+                     <pathText k="ele" font-style="bold" font-size="10" fill="#000000" stroke="#ffffff" stroke-width="1.0" />
+                  </rule>
+               </rule>
+            </rule>
+            <!-- contour lines level 16 -->
+            <rule e="way" k="contour_ext" v="*" zoom-min="16" zoom-max="16">
+               <rule e="way" k="contour_ext" v="elevation_minor">   
+                  <line stroke="#0a630c" stroke-width="0.2" stroke-dasharray="1,5"/>
+               </rule>
+               <rule e="way" k="contour_ext" v="elevation_medium|elevation_major">   
+                  <line stroke="#0a630c" stroke-width="0.5" stroke-dasharray="1,5"/>
+                        <rule e="way" k="*" v="*">
+                     <pathText k="ele" font-style="bold" font-size="14" fill="#000000" stroke="#ffffff" stroke-width="1.5" />
+                  </rule>
+               </rule>
+            </rule>   
+            <!-- contour lines level 17 and above -->
+            <rule e="way" k="contour_ext" v="*" zoom-min="17">
+               <rule e="way" k="contour_ext" v="elevation_minor">   
+                  <line stroke="#0a630c" stroke-width="0.2" stroke-dasharray="1,5"/>
+               </rule>
+               <rule e="way" k="contour_ext" v="elevation_medium|elevation_major">   
+                  <line stroke="#0a630c" stroke-width="0.4" stroke-dasharray="1,5"/>
+                        <rule e="way" k="*" v="*">
+                     <pathText k="ele" font-style="bold" font-size="14" fill="#000000" stroke="#ffffff" stroke-width="1.5" />
+                  </rule>
+               </rule>
+            </rule>   
+            
+            
+            
+            
+            
+            
+Más instrucciones
+
+#test of merging osm + srtm and render in mapsforge using a small aera in LowerAustria along the river Danube
+#Merging Srtm + osm: Thanks to user Fireball2 at http://forum.openstreetmap.org/viewtopic.php?id=5359
+
+#get srtm (output in 0.5 format)
+Srtm2Osm.exe -step 25 -cat 500 100 -large -bounds1 48.0 14.0 48.5 16.5 -o D:\maps\Mapsforge\at_test\srtm.osm
+
+#convert srtm to 0.6 (use osmosis 0.35!!! and deactivate the mapwriterplugin = remove it from homefolder)
+osmosis --read-xml-0.5 enableDateParsing=no D:\maps\Mapsforge\at_test\srtm.osm --migrate --wx D:\maps\Mapsforge\at_test\srtm6.osm
+
+#cut out osm-data from austria.osm
+osmosis --rx D:\maps\OSM_Data\austria.osm.bz2 --tee 1 --bounding-box top="48.50" bottom="48.00" left="14.00" right="16.50" --wx D:\maps\Mapsforge\at_test\at_test.osm.bz2
+
+#merge srtm + osm
+osmosis --rx D:\maps\Mapsforge\at_test\at_test.osm.bz2 --sort-0.6 --rx D:\maps\srtm6.osm --sort-0.6 --merge --wx D:\maps\Mapsforge\at_test\at_test_srtm.osm.bz2
+
+#mapsforge output (use mapwriter plugin WITH dependencies)
+osmosis --rx file=D:\maps\Mapsforge\at_test\at_test_srtm.osm.bz2 --mw file=D:\maps\Mapsforge\at_test\at_test_srtm.map bbox=48.0,14.0,48.5,16.5 type=hd tag-conf-file=D:\maps\Mapsforge\at_test\tag-mapping-srtm.xml
+
+
+#Custom tag-mapping-srtm.xml:
+#added lines to tag-mapping.xml:
+
+   <!-- Elevation TAGS -->
+   <ways>
+      <osm-tag key="contour_ext" value="elevation_minor" zoom-appear="13" />
+      <osm-tag key="contour_ext" value="elevation_medium" zoom-appear="12" />
+      <osm-tag key="contour_ext" value="elevation_major" zoom-appear="12" />
+   </ways>
+
+
+#Custom at_test_srtm.map.xml
+#added lines bevore waterways:
+
+                <!-- contour lines -->
+            <rule e="way" k="contour_ext" v="*">
+               <rule e="way" k="contour_ext" v="elevation_major">   
+                  <line stroke="#0a630c" stroke-width="1.1" stroke-dasharray="7,5"/>
+               </rule>
+               <rule e="way" k="contour_ext" v="elevation_medium">   
+                  <line stroke="#0a630c" stroke-width="0.8" stroke-dasharray="7,5"/>
+               </rule>
+               <rule e="way" k="contour_ext" v="elevation_minor">   
+                  <line stroke="#0a630c" stroke-width="0.4" stroke-dasharray="7,5"/>
+               </rule>
+            </rule>
+            
+            
+Instrucciones  :  https://oruxmaps.forumotion.com/t2216-contourlines-added-for-oruxmapsforge
