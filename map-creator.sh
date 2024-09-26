@@ -64,12 +64,18 @@ if [ "$MAP_CREATION" = "true" ]; then
   if [ -f "$MAPS_PATH/$NAME.map" ] && [ $(find "$MAPS_PATH/$NAME.map" -mtime -$DAYS) ]; then
     echo "$MAPS_PATH/$NAME.map exists and is newer than $DAYS days."
     MAP_CREATION="false"
+  elif [ -f "$MAPS_PATH/$NAME-1.map" ] && [ $(find "$MAPS_PATH/$NAME-1.map" -mtime -$DAYS) ]; then
+    echo "$MAPS_PATH/$NAME-1.map exists and is newer than $DAYS days."
+    MAP_CREATION="false"
   fi
 fi
 
 if [ "$POI_CREATION" = "true" ]; then
   if [ -f "$POIS_PATH/$NAME.poi" ] && [ $(find "$POIS_PATH/$NAME.poi" -mtime -$DAYS) ]; then
     echo "$POIS_PATH/$NAME.poi exists and is newer than $DAYS days."
+    POI_CREATION="false"
+  elif [ -f "$POIS_PATH/$NAME-1.poi" ] && [ $(find "$POIS_PATH/$NAME-1.poi" -mtime -$DAYS) ]; then
+    echo "$POIS_PATH/$NAME-1.poi exists and is newer than $DAYS days."
     POI_CREATION="false"
   fi
 fi
