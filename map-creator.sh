@@ -110,115 +110,139 @@ wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1-latest.osm.pbf.md5 
 (cd "$WORK_PATH" && exec md5sum -c "$NAME-latest.osm.pbf.md5") || exit 1
 wget -nv -N -P "$WORK_PATH" https://download.geofabrik.de/$1.poly || exit 1
 
-# ========== Map ==========
+# Bounds
 
-if [ "$MAP_CREATION" = "true" ]; then
+BBOX=$(perl poly2bb.pl "$WORK_PATH/$NAME.poly")
+BBOX=(${BBOX//,/ })
+COUNT=$((${#BBOX[@]} / 4))
 
-  # Download land
+# Areas
 
-  if [ -f "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" ] && [ $(find "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" -mtime -$DAYS) ]; then
-    echo "Land polygons exist and are newer than $DAYS days."
-  else
-    echo "Downloading land polygons..."
-    rm -rf "$DATA_PATH/land-polygons-split-4326"
-    rm -f "$DATA_PATH/land-polygons-split-4326.zip"
-    wget -nv -N -P "$DATA_PATH" https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip || exit 1
-    unzip -oq "$DATA_PATH/land-polygons-split-4326.zip" -d "$DATA_PATH"
+for ((i = 0 ; i < $COUNT ; i++ )); do
+  echo "Area $(($i + 1)) / $COUNT"
+
+  # Name
+  AREA=$NAME
+  if [ "$COUNT" -gt 1 ]; then
+    AREA="$NAME-$(($i + 1))"
   fi
 
   # Bounds
 
-  BBOX=$(perl poly2bb.pl "$WORK_PATH/$NAME.poly")
-  BBOX=(${BBOX//,/ })
-  BOTTOM=${BBOX[0]}
-  LEFT=${BBOX[1]}
-  TOP=${BBOX[2]}
-  RIGHT=${BBOX[3]}
+  BOTTOM=${BBOX[$i * 4]}
+  LEFT=${BBOX[$i * 4 + 1]}
+  TOP=${BBOX[$i * 4 + 2]}
+  RIGHT=${BBOX[$i * 4 + 3]}
 
-  # Start position
+  # ========== Map ==========
 
-  CENTER=$(perl poly2center.pl "$WORK_PATH/$NAME.poly")
-  CENTER=(${CENTER//,/ })
-  LAT=${CENTER[0]}
-  LON=${CENTER[1]}
+  if [ "$MAP_CREATION" = "true" ]; then
 
-  # Land
+    # Download land
 
-  ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP "$WORK_PATH/land.shp" "$DATA_PATH/land-polygons-split-4326/land_polygons.shp"
-  python3 shape2osm.py -l "$WORK_PATH/land" "$WORK_PATH/land.shp"
-
-  # Sea
-
-  cp sea.osm "$WORK_PATH"
-  sed -i "s/\$BOTTOM/$BOTTOM/g" "$WORK_PATH/sea.osm"
-  sed -i "s/\$LEFT/$LEFT/g" "$WORK_PATH/sea.osm"
-  sed -i "s/\$TOP/$TOP/g" "$WORK_PATH/sea.osm"
-  sed -i "s/\$RIGHT/$RIGHT/g" "$WORK_PATH/sea.osm"
-
-  # Merge
-
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
-                                 --rx file=$WORK_PATH/sea.osm --s --m"
-  for f in $WORK_PATH/land*.osm; do
-    CMD="$CMD --rx file=$f --s --m"
-  done
-  CMD="$CMD --wb file=$WORK_PATH/merge.pbf omitmetadata=true"
-  echo $CMD
-  eval "$CMD" || exit 1
-
-  # Map writer
-
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf \
-                                 --tt file=$MAP_TRANSFORM_FILE \
-                                 --mw file=$WORK_PATH/$NAME.map \
-                                      bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
-                                      map-start-position=$LAT,$LON \
-                                      map-start-zoom=8 \
-                                      tag-values=$TAG_VALUES \
-                                      comment=\"$COMMENT\" \
-                                      progress-logs=$PROGRESS_LOGS"
-  [ $2 ] && CMD="$CMD type=$2"
-  [ $3 ] && CMD="$CMD preferred-languages=$3"
-  [ $4 ] && CMD="$CMD threads=$4"
-  [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
-  echo $CMD
-  eval "$CMD" || exit 1
-
-  # Check map size
-
-  if [ -f "$MAPS_PATH/$NAME.map" ]; then
-    OLD_SIZE=$(wc -c < "$MAPS_PATH/$NAME.map")
-    NEW_SIZE=$(wc -c < "$WORK_PATH/$NAME.map")
-    if [ $NEW_SIZE -lt $(($OLD_SIZE * 70 / 100)) ]; then
-      echo "$WORK_PATH/$NAME.map creation is significantly smaller."
+    if [ -f "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" ] && [ $(find "$DATA_PATH/land-polygons-split-4326/land_polygons.shp" -mtime -$DAYS) ]; then
+      echo "Land polygons exist and are newer than $DAYS days."
     else
-      mv "$WORK_PATH/$NAME.map" "$MAPS_PATH/$NAME.map"
+      echo "Downloading land polygons..."
+      rm -rf "$DATA_PATH/land-polygons-split-4326"
+      rm -f "$DATA_PATH/land-polygons-split-4326.zip"
+      wget -nv -N -P "$DATA_PATH" https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip || exit 1
+      unzip -oq "$DATA_PATH/land-polygons-split-4326.zip" -d "$DATA_PATH"
     fi
-  else
-    mv "$WORK_PATH/$NAME.map" "$MAPS_PATH/$NAME.map"
+
+    # Start position
+
+    LAT=$(bc <<< "scale=6; ($BOTTOM + $TOP) / 2")
+    LON=$(bc <<< "scale=6; ($LEFT + $RIGHT) / 2")
+
+    # Land
+
+    ogr2ogr -overwrite -progress -skipfailures -clipsrc $LEFT $BOTTOM $RIGHT $TOP "$WORK_PATH/land.shp" "$DATA_PATH/land-polygons-split-4326/land_polygons.shp"
+    python3 shape2osm.py -l "$WORK_PATH/land" "$WORK_PATH/land.shp"
+
+    # Sea
+
+    cp sea.osm "$WORK_PATH"
+    sed -i "s/\$BOTTOM/$BOTTOM/g" "$WORK_PATH/sea.osm"
+    sed -i "s/\$LEFT/$LEFT/g" "$WORK_PATH/sea.osm"
+    sed -i "s/\$TOP/$TOP/g" "$WORK_PATH/sea.osm"
+    sed -i "s/\$RIGHT/$RIGHT/g" "$WORK_PATH/sea.osm"
+
+    # Merge
+
+    CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
+                                   --rx file=$WORK_PATH/sea.osm --s --m"
+    for f in $WORK_PATH/land*.osm; do
+      CMD="$CMD --rx file=$f --s --m"
+    done
+    CMD="$CMD --wb file=$WORK_PATH/merge.pbf omitmetadata=true"
+    echo $CMD
+    eval "$CMD" || exit 1
+
+    # Map writer
+
+    CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/merge.pbf \
+                                   --tt file=$MAP_TRANSFORM_FILE \
+                                   --mw file=$WORK_PATH/$AREA.map \
+                                        bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
+                                        map-start-position=$LAT,$LON \
+                                        map-start-zoom=8 \
+                                        tag-values=$TAG_VALUES \
+                                        comment=\"$COMMENT\" \
+                                        progress-logs=$PROGRESS_LOGS"
+    [ $2 ] && CMD="$CMD type=$2"
+    [ $3 ] && CMD="$CMD preferred-languages=$3"
+    [ $4 ] && CMD="$CMD threads=$4"
+    [ $MAP_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$MAP_TAG_CONF_FILE"
+    echo $CMD
+    eval "$CMD" || exit 1
+
+    # Check map size
+
+    if [ -f "$MAPS_PATH/$AREA.map" ]; then
+      OLD_SIZE=$(wc -c < "$MAPS_PATH/$AREA.map")
+      NEW_SIZE=$(wc -c < "$WORK_PATH/$AREA.map")
+      if [ $NEW_SIZE -lt $(($OLD_SIZE * 70 / 100)) ]; then
+        echo "$WORK_PATH/$AREA.map creation is significantly smaller."
+      else
+        mv "$WORK_PATH/$AREA.map" "$MAPS_PATH/$AREA.map"
+      fi
+    else
+      mv "$WORK_PATH/$AREA.map" "$MAPS_PATH/$AREA.map"
+    fi
+
+    # Clear
+
+    for f in $WORK_PATH/land*.*; do
+      rm -rf "$f"
+    done
+    rm -rf "$WORK_PATH/merge.pbf"
+    rm -rf "$WORK_PATH/sea.osm"
+
   fi
 
-fi
+  # ========== POI ==========
 
-# ========== POI ==========
+  if [ "$POI_CREATION" = "true" ]; then
 
-if [ "$POI_CREATION" = "true" ]; then
+    # POI writer
 
-  # POI writer
+    CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
+                                   --pw file=$WORK_PATH/$AREA.poi \
+                                        bbox=$BOTTOM,$LEFT,$TOP,$RIGHT \
+                                        comment=\"$COMMENT\" \
+                                        progress-logs=$PROGRESS_LOGS"
+    [ $POI_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
+    echo $CMD
+    eval "$CMD" || exit 1
 
-  CMD="$OSMOSIS_HOME/bin/osmosis --rb file=$WORK_PATH/$NAME-latest.osm.pbf \
-                                 --pw file=$WORK_PATH/$NAME.poi \
-                                      comment=\"$COMMENT\" \
-                                      progress-logs=$PROGRESS_LOGS"
-  [ $POI_TAG_CONF_FILE ] && CMD="$CMD tag-conf-file=$POI_TAG_CONF_FILE"
-  echo $CMD
-  eval "$CMD" || exit 1
+    # Move
 
-  # Move
+    mv "$WORK_PATH/$AREA.poi" "$POIS_PATH/$AREA.poi"
 
-  mv "$WORK_PATH/$NAME.poi" "$POIS_PATH/$NAME.poi"
+  fi
 
-fi
+done
 
 # ========== Graph ==========
 
