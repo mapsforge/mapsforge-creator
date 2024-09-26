@@ -11,3 +11,4 @@ cd "$(dirname "$0")"
 ../map-creator.sh russia/south-fed-district ram en,de,fr,es
 ../map-creator.sh russia/ural-fed-district ram en,de,fr,es
 ../map-creator.sh russia/volga-fed-district ram en,de,fr,es
+../map-creator.sh russia/kaliningrad ram en,de,fr,es
