@@ -135,6 +135,7 @@ for ((i = 0 ; i < $COUNT ; i++ )); do
       rm -f "$DATA_PATH/land-polygons-split-4326.zip"
       wget -nv -N -P "$DATA_PATH" https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip || exit 1
       unzip -oq "$DATA_PATH/land-polygons-split-4326.zip" -d "$DATA_PATH"
+      rm -f "$DATA_PATH/land-polygons-split-4326.zip"
     fi
 
     # Start position
