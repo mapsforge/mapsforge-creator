@@ -3,7 +3,6 @@
 # Automatic generation for:
 # - Mapsforge maps
 # - Mapsforge pois
-# - GraphHopper graphs
 # with OpenStreetMap data from Geofabrik
 #
 # written by devemux86
@@ -12,16 +11,11 @@
 
 [ $MAP_CREATION ] || MAP_CREATION="true"
 [ $POI_CREATION ] || POI_CREATION="true"
-[ $GRAPH_CREATION ] || GRAPH_CREATION="true"
 
 [ $OSMOSIS_HOME ] || OSMOSIS_HOME="osmosis"
 [ $DATA_PATH ] || DATA_PATH="$HOME/mapsforge/data"
 [ $MAPS_PATH ] || MAPS_PATH="$HOME/mapsforge/maps"
 [ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
-
-[ $GRAPHHOPPER_FILE ] || GRAPHHOPPER_FILE="graphhopper-web-1.0.jar"
-[ $GRAPHHOPPER_CONFIG ] || GRAPHHOPPER_CONFIG="config.yml"
-[ $GRAPHS_PATH ] || GRAPHS_PATH="$HOME/mapsforge/graphs"
 
 [ $DAYS ] || DAYS="30"
 
@@ -56,8 +50,6 @@ MAPS_PATH="$(dirname "$MAPS_PATH/$1")"
 
 POIS_PATH="$(dirname "$POIS_PATH/$1")"
 
-GRAPHS_PATH="$(dirname "$GRAPHS_PATH/$1")"
-
 # Check dates
 
 if [ "$MAP_CREATION" = "true" ]; then
@@ -80,14 +72,7 @@ if [ "$POI_CREATION" = "true" ]; then
   fi
 fi
 
-if [ "$GRAPH_CREATION" = "true" ]; then
-  if [ -f "$GRAPHS_PATH/$NAME.zip" ] && [ $(find "$GRAPHS_PATH/$NAME.zip" -mtime -$DAYS) ]; then
-    echo "$GRAPHS_PATH/$NAME.zip exists and is newer than $DAYS days."
-    GRAPH_CREATION="false"
-  fi
-fi
-
-if [ "$MAP_CREATION" = "false" ] && [ "$POI_CREATION" = "false" ] && [ "$GRAPH_CREATION" = "false" ]; then
+if [ "$MAP_CREATION" = "false" ] && [ "$POI_CREATION" = "false" ]; then
   exit
 fi
 
@@ -102,10 +87,6 @@ fi
 
 if [ "$POI_CREATION" = "true" ]; then
   mkdir -p "$POIS_PATH"
-fi
-
-if [ "$GRAPH_CREATION" = "true" ]; then
-  mkdir -p "$GRAPHS_PATH"
 fi
 
 # Download data
@@ -249,27 +230,6 @@ for ((i = 0 ; i < $COUNT ; i++ )); do
   fi
 
 done
-
-# ========== Graph ==========
-
-if [ "$GRAPH_CREATION" = "true" ]; then
-
-  # Graph writer
-
-  CMD="java $JAVACMD_OPTIONS \
-            -Ddw.graphhopper.datareader.file=$WORK_PATH/$NAME-latest.osm.pbf \
-            -Ddw.graphhopper.graph.location=$WORK_PATH/$NAME \
-            -jar $GRAPHHOPPER_FILE \
-            import \
-            $GRAPHHOPPER_CONFIG"
-  echo $CMD
-  eval "$CMD" || exit 1
-
-  # Zip
-
-  cd "$WORK_PATH" && zip -r "$GRAPHS_PATH/$NAME.zip" "$NAME" && cd -
-
-fi
 
 # Post-process
 
