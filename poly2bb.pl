@@ -21,10 +21,36 @@ while(<>) {
         $miny[$area] = 360;
     } elsif (/^\s+([0-9.E+-]+)\s+([0-9.E+-]+)\s*$/) {
         my ($x, $y) = ($1, $2);
-        $maxx[$area] = $x if ($x>$maxx[$area]);
-        $maxy[$area] = $y if ($y>$maxy[$area]);
-        $minx[$area] = $x if ($x<$minx[$area]);
-        $miny[$area] = $y if ($y<$miny[$area]);
+        $maxx[$area] = $x if ($x > $maxx[$area]);
+        $maxy[$area] = $y if ($y > $maxy[$area]);
+        $minx[$area] = $x if ($x < $minx[$area]);
+        $miny[$area] = $y if ($y < $miny[$area]);
+    }
+}
+
+if ($area > 0) {
+    $west = 0;
+    for (my $i = 0; $i <= $area; $i++) {
+        if ($minx[$i] > 0 && $maxx[$i] > 0) {
+            $west = 1;
+            last;
+        }
+    }
+    $east = 0;
+    for (my $i = 0; $i <= $area; $i++) {
+        if ($minx[$i] < 0 && $maxx[$i] < 0) {
+            $east = 1;
+            last;
+        }
+    }
+    if ($west == 0 || $east == 0) {
+        for (my $i = 0; $i <= $area; $i++) {
+            $maxx[0] = $maxx[$i] if ($maxx[$i] > $maxx[0]);
+            $maxy[0] = $maxy[$i] if ($maxy[$i] > $maxy[0]);
+            $minx[0] = $minx[$i] if ($minx[$i] < $minx[0]);
+            $miny[0] = $miny[$i] if ($miny[$i] < $miny[0]);
+        }
+        $area = 0;
     }
 }
 
