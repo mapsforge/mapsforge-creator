@@ -106,7 +106,7 @@ COUNT=$((${#BBOX[@]} / 4))
 # Areas
 
 for ((i = 0 ; i < $COUNT ; i++ )); do
-  echo "Area $(($i + 1)) / $COUNT"
+  echo "Area $(($i + 1))/$COUNT"
 
   # Name
   AREA=$NAME
