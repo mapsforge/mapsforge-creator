@@ -16,6 +16,7 @@
 [ $DATA_PATH ] || DATA_PATH="$HOME/mapsforge/data"
 [ $MAPS_PATH ] || MAPS_PATH="$HOME/mapsforge/maps"
 [ $POIS_PATH ] || POIS_PATH="$HOME/mapsforge/pois"
+[ $POLY_PATH ] || POLY_PATH="$HOME/mapsforge/poly"
 
 [ $DAYS ] || DAYS="30"
 
@@ -50,6 +51,8 @@ MAPS_PATH="$(dirname "$MAPS_PATH/$1")"
 
 POIS_PATH="$(dirname "$POIS_PATH/$1")"
 
+POLY_PATH="$(dirname "$POLY_PATH/$1")"
+
 # Check dates
 
 if [ "$MAP_CREATION" = "true" ]; then
@@ -83,10 +86,12 @@ mkdir -p "$WORK_PATH"
 
 if [ "$MAP_CREATION" = "true" ]; then
   mkdir -p "$MAPS_PATH"
+  mkdir -p "$POLY_PATH"
 fi
 
 if [ "$POI_CREATION" = "true" ]; then
   mkdir -p "$POIS_PATH"
+  mkdir -p "$POLY_PATH"
 fi
 
 # Download data
@@ -199,6 +204,10 @@ for ((i = 0 ; i < $COUNT ; i++ )); do
       mv "$WORK_PATH/$AREA.map" "$MAPS_PATH/$AREA.map"
     fi
 
+    # Poly
+
+    cp "$WORK_PATH/$AREA.poly" "$POLY_PATH/$AREA.poly"
+
     # Clear
 
     for f in $WORK_PATH/land*.*; do
@@ -227,6 +236,10 @@ for ((i = 0 ; i < $COUNT ; i++ )); do
     # Move
 
     mv "$WORK_PATH/$AREA.poi" "$POIS_PATH/$AREA.poi"
+
+    # Poly
+
+    cp "$WORK_PATH/$AREA.poly" "$POLY_PATH/$AREA.poly"
 
   fi
 
